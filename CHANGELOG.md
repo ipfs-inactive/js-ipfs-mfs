@@ -1,3 +1,13 @@
+<a name="0.3.3"></a>
+## [0.3.3](https://github.com/ipfs/js-ipfs-mfs/compare/v0.3.2...v0.3.3) (2018-09-26)
+
+
+### Bug Fixes
+
+* update read cli to use returned pull stream ([c582402](https://github.com/ipfs/js-ipfs-mfs/commit/c582402))
+
+
+
 <a name="0.3.2"></a>
 ## [0.3.2](https://github.com/ipfs/js-ipfs-mfs/compare/v0.3.1...v0.3.2) (2018-08-23)
 
