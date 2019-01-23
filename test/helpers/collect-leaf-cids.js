@@ -11,9 +11,10 @@ module.exports = (mfs, multihash) => {
         return pull(
           pull.values([cid]),
           pull.asyncMap((cid, callback) => {
-            mfs.ipld.get(cid, (error, result) => {
-              callback(error, !error && result.value)
-            })
+            mfs.ipld.get(cid).then(
+              (node) => callback(null, node),
+              (error) => callback(error)
+            )
           }),
           pull.asyncMap((node, callback) => {
             if (!node.links) {

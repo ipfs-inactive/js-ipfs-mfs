@@ -7,6 +7,7 @@ const {
 } = require('ipld-dag-pb')
 const log = require('debug')('ipfs:mfs:utils:with-mfs-root')
 const waterfall = require('async/waterfall')
+const multicodec = require('multicodec')
 
 const {
   MFS_ROOT_KEY
@@ -26,11 +27,13 @@ const withMfsRoot = (context, callback) => {
           return waterfall([
             // Store an empty node as the root
             (next) => DAGNode.create(new UnixFs('directory').marshal(), next),
-            (node, next) => context.ipld.put(node, {
-              version: 0,
-              hashAlg: 'sha2-256',
-              format: 'dag-pb'
-            }, next),
+            (node, next) => context.ipld.put(node, multicodec.DAG_PB, {
+              cidVersion: 0,
+              hashAlg: multicodec.SHA2_256
+            }).then(
+              (cid) => next(null, cid),
+              (error) => next(error)
+            ),
             // Store the Buffer in the datastore
             (cid, next) => context.repo.datastore.put(MFS_ROOT_KEY, cid.buffer, (error) => next(error, cid))
           ], cb)

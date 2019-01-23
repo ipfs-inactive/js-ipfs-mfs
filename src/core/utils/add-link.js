@@ -15,6 +15,7 @@ const {
   generatePath,
   updateHamtDirectory
 } = require('./hamt-utils')
+const toMulticodecCode = require('./to-multicodec-code')
 
 const defaultOptions = {
   parent: undefined,
@@ -43,8 +44,10 @@ const addLink = (context, options, callback) => {
     log('Loading parent node', options.parentCid.toBaseEncodedString())
 
     return waterfall([
-      (cb) => context.ipld.get(options.parentCid, cb),
-      (result, cb) => cb(null, result.value),
+      (cb) => context.ipld.get(options.parentCid).then(
+        (node) => cb(null, node),
+        (error) => cb(error)
+      ),
       (node, cb) => addLink(context, {
         ...options,
         parent: node
@@ -111,15 +114,18 @@ const addToDirectory = (context, options, callback) => {
     (parent, done) => DAGNode.addLink(parent, new DAGLink(options.name, options.size, options.cid), done),
     (parent, done) => {
       // Persist the new parent DAGNode
-      context.ipld.put(parent, {
-        version: options.cidVersion,
-        format: options.codec,
-        hashAlg: options.hashAlg,
-        hashOnly: !options.flush
-      }, (error, cid) => done(error, {
-        node: parent,
-        cid
-      }))
+      context.ipld.put(
+        parent,
+        toMulticodecCode(options.codec),
+        {
+          cidVersion: options.cidVersion,
+          hashAlg: toMulticodecCode(options.hashAlg),
+          hashOnly: !options.flush
+        }
+      ).then(
+        (cid) => done(null, { node: parent, cid }),
+        (error) => done(error)
+      )
     }
   ], callback)
 }
@@ -180,22 +186,22 @@ const updateShard = (context, positions, child, index, options, callback) => {
 
                 position++
 
-                context.ipld.get(shard.cid, (err, result) => {
-                  if (err) {
-                    return next(err)
-                  }
+                const shardCid = shard.cid
+                context.ipld.get(shardCid).then(
+                  (shardNode) => {
+                    if (position < positions.length) {
+                      const nextPrefix = positions[position].prefix
+                      const nextShard = shardNode.links.find(link => link.name.substring(0, 2) === nextPrefix)
 
-                  if (position < positions.length) {
-                    const nextPrefix = positions[position].prefix
-                    const nextShard = result.value.links.find(link => link.name.substring(0, 2) === nextPrefix)
-
-                    if (nextShard) {
-                      shard = nextShard
+                      if (nextShard) {
+                        shard = nextShard
+                      }
                     }
-                  }
 
-                  next(err, { cid: result && result.cid, node: result && result.value })
-                })
+                    next(null, { cid: shardCid, node: shardNode })
+                  },
+                  (error) => next(error)
+                )
               },
               done
             )

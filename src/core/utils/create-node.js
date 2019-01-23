@@ -5,18 +5,22 @@ const UnixFS = require('ipfs-unixfs')
 const {
   DAGNode
 } = require('ipld-dag-pb')
+const toMulticodecCode = require('./to-multicodec-code')
 
 const createNode = (context, type, options, callback) => {
   waterfall([
     (done) => DAGNode.create(new UnixFS(type).marshal(), [], done),
-    (node, done) => context.ipld.put(node, {
-      version: options.cidVersion,
-      format: options.format,
-      hashAlg: options.hashAlg
-    }, (err, cid) => done(err, {
-      cid,
-      node
-    }))
+    (node, done) => context.ipld.put(
+      node,
+      toMulticodecCode(options.format),
+      {
+        cidVersion: options.cidVersion,
+        hashAlg: toMulticodecCode(options.hashAlg)
+      }
+    ).then(
+      (cid) => done(null, { cid, node }),
+      (error) => done(error)
+    )
   ], callback)
 }
 

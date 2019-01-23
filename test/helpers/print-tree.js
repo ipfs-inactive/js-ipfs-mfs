@@ -1,21 +1,9 @@
 'use strict'
 
-const load = async (cid, ipld) => {
-  return new Promise((resolve, reject) => {
-    ipld.get(cid, (err, res) => {
-      if (err) {
-        return reject(err)
-      }
-
-      resolve(res.value)
-    })
-  })
-}
-
 const printTree = async (ipld, cid, indentation = '', name = '') => {
   console.info(indentation, name, cid.toBaseEncodedString()) // eslint-disable-line no-console
 
-  const node = await load(cid, ipld)
+  const node = await ipld.get(cid)
   const fileLinks = node.links
     .filter(link => link.name)
 

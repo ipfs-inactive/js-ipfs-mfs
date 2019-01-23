@@ -191,30 +191,29 @@ const updateOrImport = (context, options, path, source, existingChild, callback)
                 return cb(new Error(`cannot write to ${parent.name}: Not a directory`))
               }
 
-              context.ipld.get(parent.cid, (err, result) => {
-                if (err) {
-                  return cb(err)
-                }
+              context.ipld.get(parent.cid).then(
+                (node) => {
+                  addLink(context, {
+                    parent: node,
+                    parentCid: parent.cid,
+                    name: fileName,
+                    cid: child.cid,
+                    size: child.size,
+                    flush: options.flush,
+                    shardSplitThreshold: options.shardSplitThreshold
+                  }, (err, result) => {
+                    if (err) {
+                      return cb(err)
+                    }
 
-                addLink(context, {
-                  parent: result.value,
-                  parentCid: parent.cid,
-                  name: fileName,
-                  cid: child.cid,
-                  size: child.size,
-                  flush: options.flush,
-                  shardSplitThreshold: options.shardSplitThreshold
-                }, (err, result) => {
-                  if (err) {
-                    return cb(err)
-                  }
+                    parent.cid = result.cid
+                    parent.size = result.node.size
 
-                  parent.cid = result.cid
-                  parent.size = result.node.size
-
-                  cb(null, trail)
-                })
-              })
+                    cb(null, trail)
+                  })
+                },
+                (error) => cb(error)
+              )
             })
           },
 

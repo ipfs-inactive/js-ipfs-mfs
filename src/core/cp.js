@@ -80,9 +80,12 @@ const copyToFile = (context, source, destination, destinationTrail, options, cal
       const child = sourceTrail[sourceTrail.length - 1]
 
       waterfall([
-        (next) => context.ipld.get(parent.cid, next),
-        (result, next) => addLink(context, {
-          parent: result.value,
+        (next) => context.ipld.get(parent.cid).then(
+          (node) => next(null, node),
+          (error) => next(error)
+        ),
+        (node, next) => addLink(context, {
+          parent: node,
           parentCid: parent.cid,
           size: child.size,
           cid: child.cid,
@@ -165,8 +168,10 @@ const copyToDirectory = (context, sources, destination, destinationTrail, option
           const parent = destinationTrail[destinationTrail.length - 1]
 
           waterfall([
-            (next) => context.ipld.get(parent.cid, next),
-            (result, next) => next(null, { cid: parent.cid, node: result.value })
+            (next) => context.ipld.get(parent.cid).then(
+              (node) => next(null, { cid: parent.cid, node }),
+              (error) => next(error)
+            )
           ].concat(
             sourceTrails.map((sourceTrail, index) => {
               return (parent, done) => {

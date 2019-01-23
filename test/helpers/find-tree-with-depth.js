@@ -22,20 +22,8 @@ const findTreeWithDepth = async (ipld, children, depth) => {
   }
 }
 
-const load = async (ipld, cid) => {
-  return new Promise((resolve, reject) => {
-    ipld.get(cid, (err, res) => {
-      if (err) {
-        return reject(err)
-      }
-
-      resolve(res.value)
-    })
-  })
-}
-
 const findChildrenAtDepth = async (ipld, cid, children, depth, currentDepth = 0) => {
-  const node = await load(ipld, cid)
+  const node = await ipld.get(cid)
   const fileLinks = node.links.filter(link => link.name)
 
   if (currentDepth === depth && fileLinks.length >= children) {

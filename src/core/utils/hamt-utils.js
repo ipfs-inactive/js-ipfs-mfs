@@ -9,6 +9,7 @@ const Bucket = require('hamt-sharding/src/bucket')
 const DirSharded = require('ipfs-unixfs-importer/src/importer/dir-sharded')
 const log = require('debug')('ipfs:mfs:core:utils:hamt-utils')
 const UnixFS = require('ipfs-unixfs')
+const toMulticodecCode = require('./to-multicodec-code')
 
 const updateHamtDirectory = (context, links, bucket, options, callback) => {
   // update parent with new bit field
@@ -23,15 +24,18 @@ const updateHamtDirectory = (context, links, bucket, options, callback) => {
     },
     (parent, done) => {
       // Persist the new parent DAGNode
-      context.ipld.put(parent, {
-        version: options.cidVersion,
-        format: options.codec,
-        hashAlg: options.hashAlg,
-        hashOnly: !options.flush
-      }, (error, cid) => done(error, {
-        node: parent,
-        cid
-      }))
+      context.ipld.put(
+        parent,
+        toMulticodecCode(options.codec),
+        {
+          cidVersion: options.cidVersion,
+          hashAlg: toMulticodecCode(options.hashAlg),
+          hashOnly: !options.flush
+        }
+      ).then(
+        (cid) => done(null, { cid, node: parent }),
+        (error) => done(error)
+      )
     }
   ], callback)
 }
@@ -133,43 +137,41 @@ const generatePath = (context, fileName, rootNode, callback) => {
 
         // found subshard
         log(`Found subshard ${segment.prefix}`)
-        context.ipld.get(link.cid, (err, result) => {
-          if (err) {
-            return next(err)
-          }
+        context.ipld.get(link.cid).then(
+          (node) => {
+            // subshard hasn't been loaded, descend to the next level of the HAMT
+            if (!path[index - 1]) {
+              log(`Loaded new subshard ${segment.prefix}`)
 
-          // subshard hasn't been loaded, descend to the next level of the HAMT
-          if (!path[index - 1]) {
-            log(`Loaded new subshard ${segment.prefix}`)
-            const node = result.value
+              return recreateHamtLevel(node.links, rootBucket, segment.bucket, parseInt(segment.prefix, 16), async (err, bucket) => {
+                if (err) {
+                  return next(err)
+                }
 
-            return recreateHamtLevel(node.links, rootBucket, segment.bucket, parseInt(segment.prefix, 16), async (err, bucket) => {
-              if (err) {
-                return next(err)
-              }
+                const position = await rootBucket._findNewBucketAndPos(fileName)
 
-              const position = await rootBucket._findNewBucketAndPos(fileName)
+                index++
+                path.unshift({
+                  bucket: position.bucket,
+                  prefix: toPrefix(position.pos),
+                  node: node
+                })
 
-              index++
-              path.unshift({
-                bucket: position.bucket,
-                prefix: toPrefix(position.pos),
-                node: node
+                next()
               })
+            }
 
-              next()
+            const nextSegment = path[index - 1]
+
+            // add intermediate links to bucket
+            addLinksToHamtBucket(node.links, nextSegment.bucket, rootBucket, (error) => {
+              nextSegment.node = node
+
+              next(error)
             })
-          }
-
-          const nextSegment = path[index - 1]
-
-          // add intermediate links to bucket
-          addLinksToHamtBucket(result.value.links, nextSegment.bucket, rootBucket, (error) => {
-            nextSegment.node = result.value
-
-            next(error)
-          })
-        })
+          },
+          (error) => next(error)
+        )
       },
       async (err, path) => {
         await rootBucket.put(fileName, true)

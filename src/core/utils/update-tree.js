@@ -12,7 +12,10 @@ const updateTree = (context, trail, options, callback) => {
   options = Object.assign({}, defaultOptions, options)
 
   waterfall([
-    (cb) => context.ipld.getMany(trail.map(node => node.cid), cb),
+    (cb) => context.ipld.getMany(trail.map(node => node.cid)).all().then(
+      (nodes) => cb(null, nodes),
+      (error) => cb(error)
+    ),
     (nodes, cb) => {
       let index = trail.length - 1
 

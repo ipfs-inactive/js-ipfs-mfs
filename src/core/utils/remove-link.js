@@ -12,6 +12,7 @@ const {
   generatePath,
   updateHamtDirectory
 } = require('./hamt-utils')
+const toMulticodecCode = require('./to-multicodec-code')
 
 const defaultOptions = {
   parent: undefined,
@@ -39,8 +40,10 @@ const removeLink = (context, options, callback) => {
     log('Loading parent node', options.parentCid.toBaseEncodedString())
 
     return waterfall([
-      (cb) => context.ipld.get(options.parentCid, cb),
-      (result, cb) => cb(null, result.value),
+      (cb) => context.ipld.get(options.parentCid).then(
+        (node) => cb(null, node),
+        (error) => cb(error)
+      ),
       (node, cb) => removeLink(context, {
         ...options,
         parent: node
@@ -69,14 +72,17 @@ const removeFromDirectory = (context, options, callback) => {
   waterfall([
     (cb) => DAGNode.rmLink(options.parent, options.name, cb),
     (newParentNode, cb) => {
-      context.ipld.put(newParentNode, {
-        version: options.cidVersion,
-        format: options.codec,
-        hashAlg: options.hashAlg
-      }, (error, cid) => cb(error, {
-        node: newParentNode,
-        cid
-      }))
+      context.ipld.put(
+        newParentNode,
+        toMulticodecCode(options.codec),
+        {
+          cidVersion: options.cidVersion,
+          hashAlg: toMulticodecCode(options.hashAlg)
+        }
+      ).then(
+        (cid) => cb(null, { cid, node: newParentNode }),
+        (error) => cb(error)
+      )
     },
     (result, cb) => {
       log('Updated regular directory', result.cid.toBaseEncodedString())
@@ -126,15 +132,18 @@ const updateShard = (context, positions, child, options, callback) => {
         return waterfall([
           (done) => DAGNode.rmLink(node, link.name, done),
           (node, done) => {
-            context.ipld.put(node, {
-              version: options.cidVersion,
-              format: options.codec,
-              hashAlg: options.hashAlg,
-              hashOnly: !options.flush
-            }, (error, cid) => done(error, {
+            context.ipld.put(
               node,
-              cid
-            }))
+              toMulticodecCode(options.codec),
+              {
+                cidVersion: options.cidVersion,
+                hashAlg: toMulticodecCode(options.hashAlg),
+                hashOnly: !options.flush
+              }
+            ).then(
+              (cid) => done(null, { cid, node }),
+              (error) => done(error)
+            )
           },
           (result, done) => {
             bucket.del(child.name)

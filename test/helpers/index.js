@@ -24,11 +24,7 @@ const createMfs = async () => {
   })
 
   // to allow tests to verify information
-  mfs.ipld = {
-    get: promisify(ipld.get.bind(ipld)),
-    getMany: promisify(ipld.getMany.bind(ipld)),
-    put: promisify(ipld.put.bind(ipld))
-  }
+  mfs.ipld = ipld
   mfs.datastore = datastore
 
   return mfs
