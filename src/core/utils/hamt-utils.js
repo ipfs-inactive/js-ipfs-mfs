@@ -24,7 +24,7 @@ const updateHamtDirectory = (context, links, bucket, options, callback) => {
     (parent, done) => {
       // Persist the new parent DAGNode
       context.ipld.put(parent, {
-        version: options.cidVersion,
+        version: options.cidVersion == null ? 1 : options.cidVersion,
         format: options.codec,
         hashAlg: options.hashAlg,
         hashOnly: !options.flush

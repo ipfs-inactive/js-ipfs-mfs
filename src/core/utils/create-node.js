@@ -10,7 +10,7 @@ const createNode = (context, type, options, callback) => {
   waterfall([
     (done) => DAGNode.create(new UnixFS(type).marshal(), [], done),
     (node, done) => context.ipld.put(node, {
-      version: options.cidVersion,
+      version: options.cidVersion == null ? 1 : options.cidVersion,
       format: options.format,
       hashAlg: options.hashAlg
     }, (err, cid) => done(err, {

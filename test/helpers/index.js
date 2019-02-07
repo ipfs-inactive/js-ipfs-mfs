@@ -43,6 +43,6 @@ module.exports = {
   createTwoShards: require('./create-two-shards'),
   findTreeWithDepth: require('./find-tree-with-depth'),
   printTree: require('./print-tree'),
-  EMPTY_DIRECTORY_HASH: 'QmUNLLsPACCz1vLxQVkXqqLX5R1X345qqfHbsf67hvA3Nn',
-  EMPTY_DIRECTORY_HASH_BASE32: 'bafybeiczsscdsbs7ffqz55asqdf3smv6klcw3gofszvwlyarci47bgf354'
+  EMPTY_DIRECTORY_HASH: 'bafybeiczsscdsbs7ffqz55asqdf3smv6klcw3gofszvwlyarci47bgf354',
+  EMPTY_DIRECTORY_HASH_BASE64URL: 'uAXASIFmUhDkGXylhnvQSgMu5Mr5SxW2ZxZZrZeAREjnwmLvv'
 }

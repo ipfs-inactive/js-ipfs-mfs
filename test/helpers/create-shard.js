@@ -13,7 +13,8 @@ const createShard = (ipld, files, shardSplitThreshold = 10) => {
       importer(ipld, {
         shardSplitThreshold,
         reduceSingleLeafToSelf: false, // same as go-ipfs-mfs implementation, differs from `ipfs add`(!)
-        leafType: 'raw' // same as go-ipfs-mfs implementation, differs from `ipfs add`(!)
+        leafType: 'raw', // same as go-ipfs-mfs implementation, differs from `ipfs add`(!)
+        rawLeaves: false
       }),
       collect((err, files) => {
         if (err) {

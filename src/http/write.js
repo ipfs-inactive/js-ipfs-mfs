@@ -77,7 +77,7 @@ const mfsWrite = {
         cidVersion: Joi.number().integer().valid([
           0,
           1
-        ]).default(0),
+        ]).default(1),
         hashAlg: Joi.string().valid([
           'sha2-256'
         ]).default('sha2-256'),

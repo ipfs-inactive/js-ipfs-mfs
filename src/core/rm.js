@@ -14,7 +14,7 @@ const {
 
 const defaultOptions = {
   recursive: false,
-  cidVersion: 0,
+  cidVersion: 1,
   hashAlg: 'sha2-256',
   format: 'dag-pb'
 }

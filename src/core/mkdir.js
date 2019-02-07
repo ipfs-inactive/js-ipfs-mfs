@@ -21,7 +21,7 @@ const {
 const defaultOptions = {
   parents: false,
   hashAlg: 'sha2-256',
-  cidVersion: 0,
+  cidVersion: 1,
   shardSplitThreshold: 1000,
   format: 'dag-pb',
   flush: true
@@ -37,7 +37,7 @@ module.exports = (context) => {
     options = Object.assign({}, defaultOptions, options)
 
     options.parents = options.p || options.parents
-    options.cidVersion = options.cidVersion || 0
+    options.cidVersion = options.cidVersion == null ? 1 : options.cidVersion
 
     if (!path) {
       return callback(new Error('no path given to Mkdir'))
