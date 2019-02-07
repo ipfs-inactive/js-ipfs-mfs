@@ -42,7 +42,7 @@ const defaultOptions = {
   truncate: false, // whether to truncate the file first
   rawLeaves: false,
   reduceSingleLeafToSelf: false,
-  cidVersion: 0,
+  cidVersion: 1,
   hashAlg: 'sha2-256',
   format: 'dag-pb',
   parents: false, // whether to create intermediate directories if they do not exist
@@ -74,7 +74,7 @@ module.exports = function mfsWrite (context) {
       options.length = Infinity
     }
 
-    options.cidVersion = options.cidVersion || 0
+    options.cidVersion = options.cidVersion == null ? 1 : options.cidVersion
 
     waterfall([
       (done) => {

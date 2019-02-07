@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "async": "^2.6.1",
-    "cids": "~0.5.5",
+    "cids": "github:ipld/js-cid#refactor/cidv1base32-default",
     "debug": "^4.1.0",
     "filereader-stream": "^2.0.0",
     "hamt-sharding": "~0.0.2",
@@ -58,7 +58,7 @@
     "ipfs-multipart": "~0.1.0",
     "ipfs-unixfs": "~0.1.16",
     "ipfs-unixfs-exporter": "~0.35.5",
-    "ipfs-unixfs-importer": "~0.38.0",
+    "ipfs-unixfs-importer": "github:ipfs/js-ipfs-unixfs-importer#refactor/cidv1b32-default",
     "ipld-dag-pb": "~0.15.0",
     "is-pull-stream": "~0.0.0",
     "is-stream": "^1.1.0",

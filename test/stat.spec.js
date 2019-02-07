@@ -11,7 +11,7 @@ const {
   createMfs,
   createShardedDirectory,
   EMPTY_DIRECTORY_HASH,
-  EMPTY_DIRECTORY_HASH_BASE32
+  EMPTY_DIRECTORY_HASH_BASE64URL
 } = require('./helpers')
 
 describe('stat', () => {
@@ -75,18 +75,18 @@ describe('stat', () => {
     expect(stats.hash).to.equal(EMPTY_DIRECTORY_HASH)
   })
 
-  it('returns only a base32 hash', async () => {
+  it('returns only a base64url hash', async () => {
     const path = `/directory-${Math.random()}`
 
     await mfs.mkdir(path)
 
     const stats = await mfs.stat(path, {
       hash: true,
-      cidBase: 'base32'
+      cidBase: 'base64url'
     })
 
     expect(Object.keys(stats).length).to.equal(1)
-    expect(stats.hash).to.equal(EMPTY_DIRECTORY_HASH_BASE32)
+    expect(stats.hash).to.equal(EMPTY_DIRECTORY_HASH_BASE64URL)
   })
 
   it('returns only the size', async () => {
@@ -116,7 +116,7 @@ describe('stat', () => {
 
     const stats = await mfs.stat(filePath)
     expect(stats.size).to.equal(smallFile.length)
-    expect(stats.cumulativeSize).to.equal(71)
+    expect(stats.cumulativeSize).to.equal(73)
     expect(stats.blocks).to.equal(1)
     expect(stats.type).to.equal('file')
   })
@@ -131,12 +131,12 @@ describe('stat', () => {
 
     const stats = await mfs.stat(filePath)
     expect(stats.size).to.equal(largeFile.length)
-    expect(stats.cumulativeSize).to.equal(490800)
+    expect(stats.cumulativeSize).to.equal(490804)
     expect(stats.blocks).to.equal(2)
     expect(stats.type).to.equal('file')
   })
 
-  it('stats a large file with base32', async () => {
+  it('stats a large file with base64url', async () => {
     const filePath = '/stat/large-file.txt'
 
     await mfs.write(filePath, largeFile, {
@@ -145,11 +145,11 @@ describe('stat', () => {
     })
 
     const stats = await mfs.stat(filePath, {
-      cidBase: 'base32'
+      cidBase: 'base64url'
     })
-    expect(stats.hash.startsWith('b')).to.equal(true)
+    expect(stats.hash.startsWith('u')).to.equal(true)
     expect(stats.size).to.equal(largeFile.length)
-    expect(stats.cumulativeSize).to.equal(490800)
+    expect(stats.cumulativeSize).to.equal(490804)
     expect(stats.blocks).to.equal(2)
     expect(stats.type).to.equal('file')
   })

@@ -21,7 +21,7 @@ const defaultOptions = {
   name: '',
   size: undefined,
   flush: true,
-  cidVersion: 0,
+  cidVersion: 1,
   hashAlg: 'sha2-256',
   codec: 'dag-pb',
   shardSplitThreshold: 1000
@@ -111,7 +111,7 @@ const addToDirectory = (context, options, callback) => {
     (parent, done) => {
       // Persist the new parent DAGNode
       context.ipld.put(parent, {
-        version: options.cidVersion,
+        version: options.cidVersion == null ? 1 : options.cidVersion,
         format: options.codec,
         hashAlg: options.hashAlg,
         hashOnly: !options.flush

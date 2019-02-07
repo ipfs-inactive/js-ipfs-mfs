@@ -18,7 +18,7 @@ const defaultOptions = {
   parentCid: undefined,
   name: '',
   flush: true,
-  cidVersion: 0,
+  cidVersion: 1,
   hashAlg: 'sha2-256',
   codec: 'dag-pb',
   shardSplitThreshold: 1000
@@ -70,7 +70,7 @@ const removeFromDirectory = (context, options, callback) => {
     (cb) => DAGNode.rmLink(options.parent, options.name, cb),
     (newParentNode, cb) => {
       context.ipld.put(newParentNode, {
-        version: options.cidVersion,
+        version: options.cidVersion == null ? 1 : options.cidVersion,
         format: options.codec,
         hashAlg: options.hashAlg
       }, (error, cid) => cb(error, {
@@ -131,7 +131,7 @@ const updateShard = (context, positions, child, options, callback) => {
           (done) => DAGNode.rmLink(node, link.name, done),
           (node, done) => {
             context.ipld.put(node, {
-              version: options.cidVersion,
+              version: options.cidVersion == null ? 1 : options.cidVersion,
               format: options.codec,
               hashAlg: options.hashAlg,
               hashOnly: !options.flush

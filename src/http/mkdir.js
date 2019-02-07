@@ -47,7 +47,7 @@ const mfsMkdir = {
         cidVersion: Joi.number().integer().valid([
           0,
           1
-        ]).default(0),
+        ]).default(1),
         flush: Joi.boolean().default(true)
       })
         .rename('p', 'parents', {
