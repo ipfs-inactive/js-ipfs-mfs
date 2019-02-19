@@ -9,7 +9,7 @@ const isNode = require('detect-node')
 const values = require('pull-stream/sources/values')
 const bufferStream = require('pull-buffer-stream')
 const multihash = require('multihashes')
-const crypto = require('crypto')
+const randomBytes = require('./helpers/random-bytes')
 const {
   collectLeafCids,
   createMfs,
@@ -27,8 +27,8 @@ if (isNode) {
 
 describe('write', () => {
   let mfs
-  let smallFile = crypto.randomBytes(13)
-  let largeFile = crypto.randomBytes(490668)
+  let smallFile = randomBytes(13)
+  let largeFile = randomBytes(490668)
 
   const runTest = (fn) => {
     let i = 0

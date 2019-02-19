@@ -4,7 +4,7 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const crypto = require('crypto')
+const randomBytes = require('./helpers/random-bytes')
 
 const {
   createMfs,
@@ -15,8 +15,8 @@ const {
 
 describe('stat', () => {
   let mfs
-  let smallFile = crypto.randomBytes(13)
-  let largeFile = crypto.randomBytes(490668)
+  let smallFile = randomBytes(13)
+  let largeFile = randomBytes(490668)
 
   before(async () => {
     mfs = await createMfs()

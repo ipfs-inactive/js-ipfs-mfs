@@ -11,11 +11,11 @@ const {
   createMfs,
   createShardedDirectory
 } = require('./helpers')
-const crypto = require('crypto')
+const randomBytes = require('./helpers/random-bytes')
 
 describe('read', () => {
   let mfs
-  let smallFile = crypto.randomBytes(13)
+  let smallFile = randomBytes(13)
 
   before(async () => {
     mfs = await createMfs()
