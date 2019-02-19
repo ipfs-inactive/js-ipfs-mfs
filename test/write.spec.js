@@ -4,7 +4,6 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const path = require('path')
 const isNode = require('detect-node')
 const values = require('pull-stream/sources/values')
 const bufferStream = require('pull-buffer-stream')
@@ -12,7 +11,6 @@ const multihash = require('multihashes')
 const randomBytes = require('./helpers/random-bytes')
 const tempWrite = require('temp-write')
 const util = require('util')
-const os = require('os')
 const {
   collectLeafCids,
   createMfs,
