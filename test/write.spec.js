@@ -9,7 +9,6 @@ const values = require('pull-stream/sources/values')
 const bufferStream = require('pull-buffer-stream')
 const multihash = require('multihashes')
 const randomBytes = require('./helpers/random-bytes')
-const tempWrite = require('temp-write')
 const util = require('util')
 const {
   collectLeafCids,
@@ -20,10 +19,11 @@ const {
 } = require('./helpers')
 const CID = require('cids')
 
-let fs
+let fs, tempWrite
 
 if (isNode) {
   fs = require('fs')
+  tempWrite = require('temp-write')
 }
 
 describe('write', () => {
