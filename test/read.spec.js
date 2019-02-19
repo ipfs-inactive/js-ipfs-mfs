@@ -13,10 +13,11 @@ const {
   createMfs,
   createShardedDirectory
 } = require('./helpers')
+const crypto = require('crypto')
 
 describe('read', () => {
   let mfs
-  let smallFile = loadFixture(path.join('test', 'fixtures', 'small-file.txt'))
+  let smallFile = crypto.randomBytes(13)
 
   before(async () => {
     mfs = await createMfs()

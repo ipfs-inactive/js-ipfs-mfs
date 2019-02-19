@@ -10,6 +10,7 @@ const isNode = require('detect-node')
 const values = require('pull-stream/sources/values')
 const bufferStream = require('pull-buffer-stream')
 const multihash = require('multihashes')
+const crypto = require('crypto')
 const {
   collectLeafCids,
   createMfs,
@@ -27,8 +28,8 @@ if (isNode) {
 
 describe('write', () => {
   let mfs
-  let smallFile = loadFixture(path.join('test', 'fixtures', 'small-file.txt'))
-  let largeFile = loadFixture(path.join('test', 'fixtures', 'large-file.jpg'))
+  let smallFile = crypto.randomBytes(13)
+  let largeFile = crypto.randomBytes(490668)
 
   const runTest = (fn) => {
     let i = 0
