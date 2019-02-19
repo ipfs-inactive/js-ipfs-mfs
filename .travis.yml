@@ -31,6 +31,12 @@ jobs:
       script: npx aegir test -t browser
 
     - stage: test
+      name: webworker
+      addons:
+        chrome: stable
+      script: npx aegir test -t webworker
+
+    - stage: test
       name: firefox
       addons:
         firefox: latest
