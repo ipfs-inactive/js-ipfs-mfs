@@ -4,8 +4,6 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const path = require('path')
-const loadFixture = require('aegir/fixtures')
 const bufferStream = require('pull-buffer-stream')
 const pull = require('pull-stream/pull')
 const collect = require('pull-stream/sinks/collect')

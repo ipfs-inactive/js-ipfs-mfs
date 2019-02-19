@@ -4,8 +4,6 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const path = require('path')
-const loadFixture = require('aegir/fixtures')
 const crypto = require('crypto')
 
 const {
