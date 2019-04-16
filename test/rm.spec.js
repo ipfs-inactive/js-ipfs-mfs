@@ -4,16 +4,14 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const bufferStream = require('pull-buffer-stream')
 const CID = require('cids')
-const {
-  createMfs,
-  createShardedDirectory,
-  createTwoShards
-} = require('./helpers')
+const createMfs = require('./helpers/create-mfs')
+const createShardedDirectory = require('./helpers/create-sharded-directory')
+const createTwoShards = require('./helpers/create-two-shards')
+const crypto = require('crypto')
 const {
   FILE_SEPARATOR
-} = require('../src/core/utils')
+} = require('../src/core/utils/constants')
 
 describe('rm', () => {
   let mfs
@@ -27,7 +25,7 @@ describe('rm', () => {
       await mfs.rm()
       throw new Error('No error was thrown for missing paths')
     } catch (err) {
-      expect(err.message).to.contain('Please supply at least one path to remove')
+      expect(err.code).to.equal('EINVALIDPARAMS')
     }
   })
 
@@ -36,7 +34,7 @@ describe('rm', () => {
       await mfs.rm(FILE_SEPARATOR)
       throw new Error('No error was thrown for missing paths')
     } catch (err) {
-      expect(err.message).to.contain('Cannot delete root')
+      expect(err.code).to.equal('EINVALIDPARAMS')
     }
   })
 
@@ -49,7 +47,7 @@ describe('rm', () => {
       await mfs.rm(path)
       throw new Error('No error was thrown for missing recursive flag')
     } catch (err) {
-      expect(err.message).to.contain(`${path} is a directory, use -r to remove directories`)
+      expect(err.code).to.equal('EDIR')
     }
   })
 
@@ -58,14 +56,14 @@ describe('rm', () => {
       await mfs.rm(`/file-${Math.random()}`)
       throw new Error('No error was thrown for non-existent file')
     } catch (err) {
-      expect(err.message).to.contain('does not exist')
+      expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })
 
   it('removes a file', async () => {
     const file = `/some-file-${Math.random()}.txt`
 
-    await mfs.write(file, bufferStream(100), {
+    await mfs.write(file, crypto.randomBytes(100), {
       create: true,
       parents: true
     })
@@ -86,11 +84,11 @@ describe('rm', () => {
     const file1 = `/some-file-${Math.random()}.txt`
     const file2 = `/some-file-${Math.random()}.txt`
 
-    await mfs.write(file1, bufferStream(100), {
+    await mfs.write(file1, crypto.randomBytes(100), {
       create: true,
       parents: true
     })
-    await mfs.write(file2, bufferStream(100), {
+    await mfs.write(file2, crypto.randomBytes(100), {
       create: true,
       parents: true
     })
@@ -102,14 +100,14 @@ describe('rm', () => {
       await mfs.stat(file1)
       throw new Error('File #1 was not removed')
     } catch (err) {
-      expect(err.message).to.contain('does not exist')
+      expect(err.code).to.equal('ERR_NOT_FOUND')
     }
 
     try {
       await mfs.stat(file2)
       throw new Error('File #2 was not removed')
     } catch (err) {
-      expect(err.message).to.contain('does not exist')
+      expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })
 
@@ -125,7 +123,7 @@ describe('rm', () => {
       await mfs.stat(directory)
       throw new Error('Directory was not removed')
     } catch (err) {
-      expect(err.message).to.contain('does not exist')
+      expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })
 
@@ -142,17 +140,17 @@ describe('rm', () => {
     })
 
     try {
-      await mfs.ls(subdirectory)
+      await mfs.stat(path)
       throw new Error('File was not removed')
     } catch (err) {
-      expect(err.message).to.contain('does not exist')
+      expect(err.code).to.equal('ERR_NOT_FOUND')
     }
 
     try {
-      await mfs.ls(directory)
+      await mfs.stat(directory)
       throw new Error('Directory was not removed')
     } catch (err) {
-      expect(err.message).to.contain('does not exist')
+      expect(err.code).to.equal('EERR_NOT_FOUNDNOLINK')
     }
   })
 
@@ -160,7 +158,7 @@ describe('rm', () => {
     const directory = `directory-${Math.random()}`
     const file = `/${directory}/some-file-${Math.random()}.txt`
 
-    await mfs.write(file, bufferStream(100), {
+    await mfs.write(file, crypto.randomBytes(100), {
       create: true,
       parents: true
     })
@@ -172,14 +170,14 @@ describe('rm', () => {
       await mfs.stat(file)
       throw new Error('File was not removed')
     } catch (err) {
-      expect(err.message).to.contain('does not exist')
+      expect(err.code).to.equal('ERR_NOT_FOUND')
     }
 
     try {
       await mfs.stat(`/${directory}`)
       throw new Error('Directory was not removed')
     } catch (err) {
-      expect(err.message).to.contain('does not exist')
+      expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })
 
@@ -203,15 +201,15 @@ describe('rm', () => {
     try {
       await mfs.stat(dirPath)
       throw new Error('Directory was not removed')
-    } catch (error) {
-      expect(error.message).to.contain('does not exist')
+    } catch (err) {
+      expect(err.code).to.equal('ERR_NOT_FOUND')
     }
 
     try {
       await mfs.stat(shardedDirPath)
       throw new Error('Directory was not removed')
-    } catch (error) {
-      expect(error.message).to.contain('does not exist')
+    } catch (err) {
+      expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })
 
@@ -233,15 +231,15 @@ describe('rm', () => {
     try {
       await mfs.stat(otherDirPath)
       throw new Error('Directory was not removed')
-    } catch (error) {
-      expect(error.message).to.contain('does not exist')
+    } catch (err) {
+      expect(err.code).to.equal('ERR_NOT_FOUND')
     }
 
     try {
       await mfs.stat(finalShardedDirPath)
       throw new Error('Directory was not removed')
-    } catch (error) {
-      expect(error.message).to.contain('does not exist')
+    } catch (err) {
+      expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })
 
@@ -260,7 +258,7 @@ describe('rm', () => {
     await mfs.rm(nextFile.path)
 
     const stats = await mfs.stat(dirPath)
-    const updatedDirCid = new CID(stats.hash)
+    const updatedDirCid = stats.cid
 
     expect(stats.type).to.equal('hamt-sharded-directory')
     expect(updatedDirCid.toBaseEncodedString()).to.deep.equal(dirWithSomeFiles.toBaseEncodedString())
@@ -281,7 +279,7 @@ describe('rm', () => {
     await mfs.rm(nextFile.path)
 
     const stats = await mfs.stat(dirPath)
-    const updatedDirCid = new CID(stats.hash)
+    const updatedDirCid = stats.cid
 
     expect(stats.type).to.equal('hamt-sharded-directory')
     expect(updatedDirCid.toBaseEncodedString()).to.deep.equal(dirWithSomeFiles.toBaseEncodedString())
@@ -302,7 +300,7 @@ describe('rm', () => {
     await mfs.rm(nextFile.path)
 
     const stats = await mfs.stat(dirPath)
-    const updatedDirCid = new CID(stats.hash)
+    const updatedDirCid = stats.cid
 
     expect(stats.type).to.equal('hamt-sharded-directory')
     expect(updatedDirCid.toBaseEncodedString()).to.deep.equal(dirWithSomeFiles.toBaseEncodedString())
@@ -323,7 +321,7 @@ describe('rm', () => {
     await mfs.rm(nextFile.path)
 
     const stats = await mfs.stat(dirPath)
-    const updatedDirCid = new CID(stats.hash)
+    const updatedDirCid = stats.cid
 
     expect(stats.type).to.equal('hamt-sharded-directory')
     expect(updatedDirCid.toBaseEncodedString()).to.deep.equal(dirWithSomeFiles.toBaseEncodedString())

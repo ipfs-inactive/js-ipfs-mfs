@@ -4,20 +4,19 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const randomBytes = require('./helpers/random-bytes')
+const crypto = require('crypto')
 const CID = require('cids')
-
+const createMfs = require('./helpers/create-mfs')
+const createShardedDirectory = require('./helpers/create-sharded-directory')
 const {
-  createMfs,
-  createShardedDirectory,
   EMPTY_DIRECTORY_HASH,
   EMPTY_DIRECTORY_HASH_BASE32
-} = require('./helpers')
+} = require('./helpers/constants')
 
 describe('stat', () => {
   let mfs
-  let smallFile = randomBytes(13)
-  let largeFile = randomBytes(490668)
+  let smallFile = crypto.randomBytes(13)
+  let largeFile = crypto.randomBytes(490668)
 
   before(async () => {
     mfs = await createMfs()
@@ -62,46 +61,6 @@ describe('stat', () => {
     expect(stats.type).to.equal('directory')
   })
 
-  it('returns only a hash', async () => {
-    const path = `/directory-${Math.random()}`
-
-    await mfs.mkdir(path)
-
-    const stats = await mfs.stat(path, {
-      hash: true
-    })
-
-    expect(Object.keys(stats).length).to.equal(1)
-    expect(stats.hash).to.equal(EMPTY_DIRECTORY_HASH)
-  })
-
-  it('returns only a base32 hash', async () => {
-    const path = `/directory-${Math.random()}`
-
-    await mfs.mkdir(path)
-
-    const stats = await mfs.stat(path, {
-      hash: true,
-      cidBase: 'base32'
-    })
-
-    expect(Object.keys(stats).length).to.equal(1)
-    expect(stats.hash).to.equal(EMPTY_DIRECTORY_HASH_BASE32)
-  })
-
-  it('returns only the size', async () => {
-    const path = `/directory-${Math.random()}`
-
-    await mfs.mkdir(path)
-
-    const stats = await mfs.stat(path, {
-      size: true
-    })
-
-    expect(Object.keys(stats).length).to.equal(1)
-    expect(stats.size).to.equal(0)
-  })
-
   it.skip('computes how much of the DAG is local', async () => {
 
   })
@@ -136,24 +95,6 @@ describe('stat', () => {
     expect(stats.type).to.equal('file')
   })
 
-  it('stats a large file with base32', async () => {
-    const filePath = '/stat/large-file.txt'
-
-    await mfs.write(filePath, largeFile, {
-      create: true,
-      parents: true
-    })
-
-    const stats = await mfs.stat(filePath, {
-      cidBase: 'base32'
-    })
-    expect(stats.hash.startsWith('b')).to.equal(true)
-    expect(stats.size).to.equal(largeFile.length)
-    expect(stats.cumulativeSize).to.equal(490800)
-    expect(stats.blocks).to.equal(2)
-    expect(stats.type).to.equal('file')
-  })
-
   it('stats a raw node', async () => {
     const filePath = '/stat/large-file.txt'
 
@@ -164,15 +105,14 @@ describe('stat', () => {
     })
 
     const stats = await mfs.stat(filePath)
-    const result = await mfs.ipld.get(new CID(stats.hash))
-    const node = result.value
+    const node = await mfs.ipld.get(stats.cid)
     const child = node.links[0]
 
     expect(child.cid.codec).to.equal('raw')
 
     const rawNodeStats = await mfs.stat(`/ipfs/${child.cid.toBaseEncodedString()}`)
 
-    expect(rawNodeStats.hash).to.equal(child.cid.toBaseEncodedString())
+    expect(rawNodeStats.cid.toBaseEncodedString()).to.equal(child.cid.toBaseEncodedString())
     expect(rawNodeStats.type).to.equal('file') // this is what go does
   })
 
@@ -186,8 +126,7 @@ describe('stat', () => {
     })
 
     const stats = await mfs.stat(filePath)
-    const result = await mfs.ipld.get(new CID(stats.hash))
-    const node = result.value
+    const node = await mfs.ipld.get(stats.cid)
     const child = node.links[0]
 
     expect(child.cid.codec).to.equal('raw')
@@ -200,7 +139,7 @@ describe('stat', () => {
 
     const rawNodeStats = await mfs.stat(path)
 
-    expect(rawNodeStats.hash).to.equal(child.cid.toBaseEncodedString())
+    expect(rawNodeStats.cid.toBaseEncodedString()).to.equal(child.cid.toBaseEncodedString())
     expect(rawNodeStats.type).to.equal('file') // this is what go does
   })
 
@@ -215,7 +154,12 @@ describe('stat', () => {
 
   it('stats a file inside a sharded directory', async () => {
     const shardedDirPath = await createShardedDirectory(mfs)
-    const files = await mfs.ls(`${shardedDirPath}`)
+    const files = []
+
+    for await (const file of mfs.ls(`${shardedDirPath}`)) {
+      files.push(file)
+    }
+
     const stats = await mfs.stat(`${shardedDirPath}/${files[0].name}`)
 
     expect(stats.type).to.equal('file')

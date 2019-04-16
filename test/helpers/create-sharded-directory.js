@@ -14,6 +14,7 @@ module.exports = async (mfs, shardSplitThreshold = 10, files = shardSplitThresho
 
   await mfs.cp(`/ipfs/${cid.toBaseEncodedString()}`, dirPath)
 
+  expect((await mfs.stat(`/ipfs/${cid.toBaseEncodedString()}`)).type).to.equal('hamt-sharded-directory')
   expect((await mfs.stat(dirPath)).type).to.equal('hamt-sharded-directory')
 
   return dirPath

@@ -2,11 +2,13 @@
 
 const Joi = require('joi')
 const multipart = require('ipfs-multipart')
+const Boom = require('boom')
 
 const mfsWrite = {
   method: 'POST',
   path: '/api/v0/files/write',
   async handler (request, h) {
+    console.info('ok, starting write')
     const {
       ipfs
     } = request.server.app
@@ -29,13 +31,22 @@ const mfsWrite = {
 
     const fileStream = await new Promise((resolve, reject) => {
       const parser = multipart.reqParser(request.payload)
+      let fileStream
 
       parser.on('file', (_, stream) => {
-        resolve(stream)
+        if (fileStream) {
+          return reject(Boom.badRequest('Please only send one file'))
+        }
+
+        fileStream = stream
       })
 
       parser.on('error', (error) => {
         reject(error)
+      })
+
+      parser.on('end', () => {
+        resolve(fileStream)
       })
     })
 
@@ -54,7 +65,7 @@ const mfsWrite = {
       flush,
       shardSplitThreshold
     })
-
+console.info('wrote')
     return h.response()
   },
   options: {
