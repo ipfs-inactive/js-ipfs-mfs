@@ -42,11 +42,11 @@ module.exports = (options = {}, defaults) => {
   }
 
   if (output.offset < 0) {
-    throw errCode(new Error('cannot have negative write offset'), 'EINVALIDPARAMS')
+    throw errCode(new Error('cannot have negative write offset'), 'ERR_INVALID_PARAMS')
   }
 
   if (output.length < 0) {
-    throw errCode(new Error('cannot have negative byte count'), 'EINVALIDPARAMS')
+    throw errCode(new Error('cannot have negative byte count'), 'ERR_INVALID_PARAMS')
   }
 
   return output

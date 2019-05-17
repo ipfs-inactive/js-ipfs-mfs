@@ -69,7 +69,7 @@ describe('write', () => {
       })
       throw new Error('Did not fail to convert -1 into a pull stream source')
     } catch (err) {
-      expect(err.code).to.equal('EINVALIDPARAMS')
+      expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
   })
 
@@ -80,7 +80,7 @@ describe('write', () => {
       })
       throw new Error('Did not object to invalid paths')
     } catch (err) {
-      expect(err.code).to.equal('EINVALIDPATH')
+      expect(err.code).to.equal('ERR_INVALID_PATH')
     }
   })
 
@@ -91,7 +91,7 @@ describe('write', () => {
       })
       throw new Error('Did not object to negative write offset')
     } catch (err) {
-      expect(err.code).to.equal('EINVALIDPARAMS')
+      expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
   })
 
@@ -102,7 +102,7 @@ describe('write', () => {
       })
       throw new Error('Did not object to negative byte count')
     } catch (err) {
-      expect(err.code).to.equal('EINVALIDPARAMS')
+      expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
   })
 
@@ -741,7 +741,7 @@ describe('write', () => {
       dirPath
     } = await createTwoShards(mfs.ipld, 75)
 
-    await mfs.cp(`/ipfs/${dirWithSomeFiles.toBaseEncodedString()}`, dirPath)
+    await mfs.cp(`/ipfs/${dirWithSomeFiles}`, dirPath)
 
     await mfs.write(nextFile.path, nextFile.content, {
       create: true
@@ -751,7 +751,7 @@ describe('write', () => {
     const updatedDirCid = stats.cid
 
     expect(stats.type).to.equal('hamt-sharded-directory')
-    expect(updatedDirCid.toBaseEncodedString()).to.deep.equal(dirWithAllFiles.toBaseEncodedString())
+    expect(updatedDirCid.toString()).to.deep.equal(dirWithAllFiles.toString())
   })
 
   it('results in the same hash as a sharded directory created by the importer when creating a new subshard', async function () {
@@ -764,7 +764,7 @@ describe('write', () => {
       dirPath
     } = await createTwoShards(mfs.ipld, 100)
 
-    await mfs.cp(`/ipfs/${dirWithSomeFiles.toBaseEncodedString()}`, dirPath)
+    await mfs.cp(`/ipfs/${dirWithSomeFiles}`, dirPath)
 
     await mfs.write(nextFile.path, nextFile.content, {
       create: true
@@ -773,7 +773,7 @@ describe('write', () => {
     const stats = await mfs.stat(dirPath)
     const updatedDirCid = stats.cid
 
-    expect(updatedDirCid.toBaseEncodedString()).to.deep.equal(dirWithAllFiles.toBaseEncodedString())
+    expect(updatedDirCid.toString()).to.deep.equal(dirWithAllFiles.toString())
   })
 
   it('results in the same hash as a sharded directory created by the importer when adding a file to a subshard', async function () {
@@ -786,7 +786,7 @@ describe('write', () => {
       dirPath
     } = await createTwoShards(mfs.ipld, 82)
 
-    await mfs.cp(`/ipfs/${dirWithSomeFiles.toBaseEncodedString()}`, dirPath)
+    await mfs.cp(`/ipfs/${dirWithSomeFiles}`, dirPath)
 
     await mfs.write(nextFile.path, nextFile.content, {
       create: true
@@ -796,7 +796,7 @@ describe('write', () => {
     const updatedDirCid = stats.cid
 
     expect(stats.type).to.equal('hamt-sharded-directory')
-    expect(updatedDirCid.toBaseEncodedString()).to.deep.equal(dirWithAllFiles.toBaseEncodedString())
+    expect(updatedDirCid.toString()).to.deep.equal(dirWithAllFiles.toString())
   })
 
   it('results in the same hash as a sharded directory created by the importer when adding a file to a subshard of a subshard', async function () {
@@ -809,7 +809,7 @@ describe('write', () => {
       dirPath
     } = await createTwoShards(mfs.ipld, 2187)
 
-    await mfs.cp(`/ipfs/${dirWithSomeFiles.toBaseEncodedString()}`, dirPath)
+    await mfs.cp(`/ipfs/${dirWithSomeFiles}`, dirPath)
 
     await mfs.write(nextFile.path, nextFile.content, {
       create: true
@@ -819,7 +819,7 @@ describe('write', () => {
     const updatedDirCid = stats.cid
 
     expect(stats.type).to.equal('hamt-sharded-directory')
-    expect(updatedDirCid.toBaseEncodedString()).to.deep.equal(dirWithAllFiles.toBaseEncodedString())
+    expect(updatedDirCid.toString()).to.deep.equal(dirWithAllFiles.toString())
   })
 
   it('results in the same hash as a sharded directory created by the importer when causing a subshard of a subshard to be created', async function () {
@@ -850,7 +850,7 @@ describe('write', () => {
       content: crypto.randomBytes(5)
     }], 1)
 
-    await mfs.cp(`/ipfs/${dirCid.toBaseEncodedString()}`, dir)
+    await mfs.cp(`/ipfs/${dirCid}`, dir)
 
     await mfs.write(`${dir}/supermodule_test`, superModuleContent, {
       create: true
@@ -882,7 +882,7 @@ describe('write', () => {
       content: buf
     }], 1)
 
-    await mfs.cp(`/ipfs/${dirCid.toBaseEncodedString()}`, dir)
+    await mfs.cp(`/ipfs/${dirCid}`, dir)
 
     await mfs.write(`${dir}/file-1011.txt`, buf, {
       create: true
@@ -907,7 +907,7 @@ describe('write', () => {
       content: buf
     }], 1)
 
-    await mfs.cp(`/ipfs/${dirCid.toBaseEncodedString()}`, dir)
+    await mfs.cp(`/ipfs/${dirCid}`, dir)
 
     await mfs.rm(`${dir}/file-1011.txt`)
 

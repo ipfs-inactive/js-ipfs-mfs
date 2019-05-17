@@ -1,10 +1,10 @@
 'use strict'
 
-module.exports = async function * traverseLeafNodes (mfs, cid) {
-  async function *  traverse (cid) {
+module.exports = function traverseLeafNodes (mfs, cid) {
+  async function * traverse (cid) {
     const node = await mfs.ipld.get(cid)
 
-    if (Buffer.isBuffer(node) || !node.links.length) {
+    if (Buffer.isBuffer(node) || !node.Links.length) {
       yield {
         node,
         cid
@@ -13,7 +13,7 @@ module.exports = async function * traverseLeafNodes (mfs, cid) {
       return
     }
 
-    node.links.forEach(link => traverse(link.cid))
+    node.Links.forEach(link => traverse(link.Hash))
   }
 
   return traverse(cid)

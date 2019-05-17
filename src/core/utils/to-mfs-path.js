@@ -24,11 +24,11 @@ const toMfsPath = async (context, path) => {
     }
 
     if (!path) {
-      throw errCode(new Error('paths must not be empty'), 'ENOPATH')
+      throw errCode(new Error('paths must not be empty'), 'ERR_NO_PATH')
     }
 
     if (path.substring(0, 1) !== FILE_SEPARATOR) {
-      throw errCode(new Error(`paths must start with a leading ${FILE_SEPARATOR}`), 'EINVALIDPATH')
+      throw errCode(new Error(`paths must start with a leading ${FILE_SEPARATOR}`), 'ERR_INVALID_PATH')
     }
 
     if (path.substring(path.length - FILE_SEPARATOR.length) === FILE_SEPARATOR) {
@@ -59,8 +59,8 @@ const toMfsPath = async (context, path) => {
       }
     }
 
-    const mfsPath = `/${IPFS_PREFIX}/${root.toBaseEncodedString()}${pathComponents.length ? '/' + pathComponents.join(FILE_SEPARATOR) : ''}`
-    const mfsDirectory = `/${IPFS_PREFIX}/${root.toBaseEncodedString()}/${pathComponents.slice(0, pathComponents.length - 1).join(FILE_SEPARATOR)}`
+    const mfsPath = `/${IPFS_PREFIX}/${root}${pathComponents.length ? '/' + pathComponents.join(FILE_SEPARATOR) : ''}`
+    const mfsDirectory = `/${IPFS_PREFIX}/${root}/${pathComponents.slice(0, pathComponents.length - 1).join(FILE_SEPARATOR)}`
 
     return {
       type: 'mfs',
@@ -85,7 +85,6 @@ const toMfsPath = async (context, path) => {
         path.mfsPath = `/ipfs/${res.path}`
         path.unixfs = res.unixfs
         path.content = res.content
-
       } catch (err) {
         if (err.code !== 'ERR_NOT_FOUND') {
           throw err

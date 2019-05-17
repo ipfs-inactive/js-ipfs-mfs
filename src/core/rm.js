@@ -30,12 +30,12 @@ module.exports = (context) => {
     const options = applyDefaultOptions(args, defaultOptions)
 
     if (!sources.length) {
-      throw errCode(new Error('Please supply at least one path to remove'), 'EINVALIDPARAMS')
+      throw errCode(new Error('Please supply at least one path to remove'), 'ERR_INVALID_PARAMS')
     }
 
     sources.forEach(source => {
       if (source.path === FILE_SEPARATOR) {
-        throw errCode(new Error('Cannot delete root'), 'EINVALIDPARAMS')
+        throw errCode(new Error('Cannot delete root'), 'ERR_INVALID_PARAMS')
       }
     })
 
@@ -56,7 +56,7 @@ const removePath = async (context, path, options) => {
   }
 
   if (child.type === 'directory' && !options.recursive) {
-    throw errCode(new Error(`${path} is a directory, use -r to remove directories`), 'EDIR')
+    throw errCode(new Error(`${path} is a directory, use -r to remove directories`), 'ERR_WAS_DIR')
   }
 
   const {

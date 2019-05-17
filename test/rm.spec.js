@@ -4,7 +4,6 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const CID = require('cids')
 const createMfs = require('./helpers/create-mfs')
 const createShardedDirectory = require('./helpers/create-sharded-directory')
 const createTwoShards = require('./helpers/create-two-shards')
@@ -25,7 +24,7 @@ describe('rm', () => {
       await mfs.rm()
       throw new Error('No error was thrown for missing paths')
     } catch (err) {
-      expect(err.code).to.equal('EINVALIDPARAMS')
+      expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
   })
 
@@ -34,7 +33,7 @@ describe('rm', () => {
       await mfs.rm(FILE_SEPARATOR)
       throw new Error('No error was thrown for missing paths')
     } catch (err) {
-      expect(err.code).to.equal('EINVALIDPARAMS')
+      expect(err.code).to.equal('ERR_INVALID_PARAMS')
     }
   })
 
@@ -47,7 +46,7 @@ describe('rm', () => {
       await mfs.rm(path)
       throw new Error('No error was thrown for missing recursive flag')
     } catch (err) {
-      expect(err.code).to.equal('EDIR')
+      expect(err.code).to.equal('ERR_WAS_DIR')
     }
   })
 
@@ -150,7 +149,7 @@ describe('rm', () => {
       await mfs.stat(directory)
       throw new Error('Directory was not removed')
     } catch (err) {
-      expect(err.code).to.equal('EERR_NOT_FOUNDNOLINK')
+      expect(err.code).to.equal('ERR_NOT_FOUND')
     }
   })
 
@@ -253,7 +252,7 @@ describe('rm', () => {
       dirPath
     } = await createTwoShards(mfs.ipld, 15)
 
-    await mfs.cp(`/ipfs/${dirWithAllFiles.toBaseEncodedString()}`, dirPath)
+    await mfs.cp(`/ipfs/${dirWithAllFiles}`, dirPath)
 
     await mfs.rm(nextFile.path)
 
@@ -261,7 +260,7 @@ describe('rm', () => {
     const updatedDirCid = stats.cid
 
     expect(stats.type).to.equal('hamt-sharded-directory')
-    expect(updatedDirCid.toBaseEncodedString()).to.deep.equal(dirWithSomeFiles.toBaseEncodedString())
+    expect(updatedDirCid.toString()).to.deep.equal(dirWithSomeFiles.toString())
   })
 
   it('results in the same hash as a sharded directory created by the importer when removing a subshard', async function () {
@@ -274,7 +273,7 @@ describe('rm', () => {
       dirPath
     } = await createTwoShards(mfs.ipld, 31)
 
-    await mfs.cp(`/ipfs/${dirWithAllFiles.toBaseEncodedString()}`, dirPath)
+    await mfs.cp(`/ipfs/${dirWithAllFiles}`, dirPath)
 
     await mfs.rm(nextFile.path)
 
@@ -282,7 +281,7 @@ describe('rm', () => {
     const updatedDirCid = stats.cid
 
     expect(stats.type).to.equal('hamt-sharded-directory')
-    expect(updatedDirCid.toBaseEncodedString()).to.deep.equal(dirWithSomeFiles.toBaseEncodedString())
+    expect(updatedDirCid.toString()).to.deep.equal(dirWithSomeFiles.toString())
   })
 
   it('results in the same hash as a sharded directory created by the importer when removing a file from a subshard of a subshard', async function () {
@@ -295,7 +294,7 @@ describe('rm', () => {
       dirPath
     } = await createTwoShards(mfs.ipld, 2187)
 
-    await mfs.cp(`/ipfs/${dirWithAllFiles.toBaseEncodedString()}`, dirPath)
+    await mfs.cp(`/ipfs/${dirWithAllFiles}`, dirPath)
 
     await mfs.rm(nextFile.path)
 
@@ -303,7 +302,7 @@ describe('rm', () => {
     const updatedDirCid = stats.cid
 
     expect(stats.type).to.equal('hamt-sharded-directory')
-    expect(updatedDirCid.toBaseEncodedString()).to.deep.equal(dirWithSomeFiles.toBaseEncodedString())
+    expect(updatedDirCid.toString()).to.deep.equal(dirWithSomeFiles.toString())
   })
 
   it('results in the same hash as a sharded directory created by the importer when removing a subshard of a subshard', async function () {
@@ -316,7 +315,7 @@ describe('rm', () => {
       dirPath
     } = await createTwoShards(mfs.ipld, 139)
 
-    await mfs.cp(`/ipfs/${dirWithAllFiles.toBaseEncodedString()}`, dirPath)
+    await mfs.cp(`/ipfs/${dirWithAllFiles}`, dirPath)
 
     await mfs.rm(nextFile.path)
 
@@ -324,6 +323,6 @@ describe('rm', () => {
     const updatedDirCid = stats.cid
 
     expect(stats.type).to.equal('hamt-sharded-directory')
-    expect(updatedDirCid.toBaseEncodedString()).to.deep.equal(dirWithSomeFiles.toBaseEncodedString())
+    expect(updatedDirCid.toString()).to.deep.equal(dirWithSomeFiles.toString())
   })
 })

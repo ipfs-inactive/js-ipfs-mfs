@@ -42,7 +42,7 @@ describe('ls', () => {
 
       throw new Error('No error was thrown for an empty path')
     } catch (err) {
-      expect(err.code).to.equal('ENOPATH')
+      expect(err.code).to.equal('ERR_NO_PATH')
     }
   })
 
@@ -54,7 +54,7 @@ describe('ls', () => {
 
       throw new Error('No error was thrown for an empty path')
     } catch (err) {
-      expect(err.code).to.equal('EINVALIDPATH')
+      expect(err.code).to.equal('ERR_INVALID_PATH')
     }
   })
 
@@ -118,15 +118,15 @@ describe('ls', () => {
 
     const stats = await mfs.stat(filePath)
     const node = await mfs.ipld.get(stats.cid)
-    const child = node.links[0]
+    const child = node.Links[0]
 
-    expect(child.cid.codec).to.equal('raw')
+    expect(child.Hash.codec).to.equal('raw')
 
-    const files = await streamToArray(mfs.ls(`/ipfs/${child.cid}`))
+    const files = await streamToArray(mfs.ls(`/ipfs/${child.Hash}`))
 
     expect(files.length).to.equal(1)
     expect(files[0].type).to.equal(0) // this is what go does
-    expect(files[0].cid.toBaseEncodedString()).to.equal(child.cid.toBaseEncodedString())
+    expect(files[0].cid.toString()).to.equal(child.Hash.toString())
   })
 
   it('lists a raw node in an mfs directory', async () => {
@@ -141,21 +141,21 @@ describe('ls', () => {
     const stats = await mfs.stat(filePath)
     const cid = stats.cid
     const node = await mfs.ipld.get(cid)
-    const child = node.links[0]
+    const child = node.Links[0]
 
-    expect(child.cid.codec).to.equal('raw')
+    expect(child.Hash.codec).to.equal('raw')
 
     const dir = `/dir-with-raw-${Date.now()}`
     const path = `${dir}/raw-${Date.now()}`
 
     await mfs.mkdir(dir)
-    await mfs.cp(`/ipfs/${child.cid.toBaseEncodedString()}`, path)
+    await mfs.cp(`/ipfs/${child.Hash}`, path)
 
-    const files = await streamToArray(mfs.ls(`/ipfs/${child.cid}`))
+    const files = await streamToArray(mfs.ls(`/ipfs/${child.Hash}`))
 
     expect(files.length).to.equal(1)
     expect(files[0].type).to.equal(0) // this is what go does
-    expect(files[0].cid.toBaseEncodedString()).to.equal(child.cid.toBaseEncodedString())
+    expect(files[0].cid.toString()).to.equal(child.Hash.toString())
   })
 
   it('lists a sharded directory contents', async () => {

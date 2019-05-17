@@ -183,7 +183,7 @@ describe('cp', () => {
     })
 
     const stats = await mfs.stat(source)
-    await mfs.cp(`/ipfs/${stats.cid.toBaseEncodedString()}`, destination)
+    await mfs.cp(`/ipfs/${stats.cid}`, destination)
 
     const destinationStats = await mfs.stat(destination)
     expect(destinationStats.size).to.equal(100)
@@ -201,7 +201,7 @@ describe('cp', () => {
     })
 
     const stats = await mfs.stat(`/${dir}`)
-    await mfs.cp(`/ipfs/${stats.cid.toBaseEncodedString()}/${file}`, destination)
+    await mfs.cp(`/ipfs/${stats.cid}/${file}`, destination)
 
     const destinationStats = await mfs.stat(destination)
     expect(destinationStats.size).to.equal(100)

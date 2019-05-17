@@ -37,7 +37,6 @@ module.exports = (context) => {
     }
 
     options = applyDefaultOptions(options, defaultOptions)
-    options.long = options.l || options.long
 
     const mfsPath = await toMfsPath(context, path)
     const fsDir = await exporter(mfsPath.mfsPath, context.ipld)

@@ -6,7 +6,7 @@ const {
 } = require('./constants')
 
 const updateMfsRoot = async (context, cid) => {
-  log(`New MFS root will be ${cid.toBaseEncodedString()}`)
+  log(`New MFS root will be ${cid}`)
 
   await context.repo.datastore.put(MFS_ROOT_KEY, cid.buffer)
 

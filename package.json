@@ -39,18 +39,21 @@
   "homepage": "https://github.com/ipfs/js-ipfs-mfs#readme",
   "devDependencies": {
     "aegir": "^18.0.2",
+    "async-iterator-all": "^1.0.0",
     "chai": "^4.2.0",
     "detect-node": "^2.0.4",
     "detect-webworker": "^1.0.0",
     "dirty-chai": "^2.0.1",
     "ipfs-block-service": "~0.15.2",
     "ipfs-repo": "~0.26.4",
-    "ipld": "~0.22.0",
+    "ipld": "~0.24.0",
     "memdown": "^4.0.0",
     "temp-write": "^3.4.0"
   },
   "dependencies": {
-    "cids": "~0.5.5",
+    "async-iterator-last": "^1.0.0",
+    "boom": "^7.2.0",
+    "cids": "~0.7.1",
     "debug": "^4.1.0",
     "err-code": "^1.1.2",
     "hamt-sharding": "~0.0.2",
@@ -59,14 +62,15 @@
     "ipfs-unixfs": "~0.1.16",
     "ipfs-unixfs-exporter": "~0.36.1",
     "ipfs-unixfs-importer": "~0.38.5",
-    "ipld-dag-pb": "~0.15.2",
+    "ipld-dag-pb": "~0.17.0",
     "joi": "^14.3.0",
     "joi-browser": "^13.4.0",
     "mortice": "^1.2.1",
-    "multicodec": "~0.5.0",
+    "multicodec": "~0.5.1",
     "multihashes": "~0.4.14",
     "once": "^1.4.0",
-    "promisify-es6": "^1.0.3"
+    "promisify-es6": "^1.0.3",
+    "pull-stream": "^3.6.9"
   },
   "contributors": [
     "Alan Shaw <alan.shaw@protocol.ai>",

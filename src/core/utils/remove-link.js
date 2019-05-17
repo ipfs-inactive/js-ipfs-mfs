@@ -3,7 +3,7 @@
 const {
   DAGNode,
   DAGLink
-} = require('./dag-pb')
+} = require('ipld-dag-pb')
 const CID = require('cids')
 const log = require('debug')('ipfs:mfs:core:utils:remove-link')
 const UnixFS = require('ipfs-unixfs')
@@ -25,7 +25,7 @@ const removeLink = async (context, options) => {
   }
 
   if (!options.parent) {
-    log('Loading parent node', options.parentCid.toBaseEncodedString())
+    log(`Loading parent node ${options.parentCid}`)
 
     options.parent = await context.ipld.get(options.parentCid)
   }
@@ -34,7 +34,7 @@ const removeLink = async (context, options) => {
     throw errCode(new Error('No child name passed to removeLink'), 'EINVALIDCHILDNAME')
   }
 
-  const meta = UnixFS.unmarshal(options.parent.data)
+  const meta = UnixFS.unmarshal(options.parent.Data)
 
   if (meta.type === 'hamt-sharded-directory') {
     log(`Removing ${options.name} from sharded directory`)
@@ -57,7 +57,7 @@ const removeFromDirectory = async (context, options) => {
     hashAlg
   })
 
-  log('Updated regular directory', cid.toBaseEncodedString())
+  log(`Updated regular directory ${cid}`)
 
   return {
     node: newParentNode,
@@ -84,7 +84,7 @@ const removeFromShardedDirectory = async (context, options) => {
     flush: options.flush
   }, options)
 
-  return updateHamtDirectory(context, node.links, rootBucket, options)
+  return updateHamtDirectory(context, node.Links, rootBucket, options)
 }
 
 const updateShard = async (context, positions, child, options) => {
@@ -94,49 +94,51 @@ const updateShard = async (context, positions, child, options) => {
     node
   } = positions.pop()
 
-  const link = node.links
-    .find(link => link.name.substring(0, 2) === prefix)
+  const link = node.Links
+    .find(link => link.Name.substring(0, 2) === prefix)
 
   if (!link) {
     throw errCode(new Error(`No link found with prefix ${prefix} for file ${child.name}`), 'ERR_NOT_FOUND')
   }
 
-  if (link.name === `${prefix}${child.name}`) {
-    log(`Removing existing link ${link.name}`)
+  if (link.Name === `${prefix}${child.name}`) {
+    log(`Removing existing link ${link.Name}`)
 
-    const newNode = await DAGNode.rmLink(node, link.name)
+    const newNode = await DAGNode.rmLink(node, link.Name)
 
     await bucket.del(child.name)
 
-    return updateHamtDirectory(context, newNode.links, bucket, options)
+    return updateHamtDirectory(context, newNode.Links, bucket, options)
   }
 
-  log(`Descending into sub-shard ${link.name} for ${prefix}${child.name}`)
+  log(`Descending into sub-shard ${link.Name} for ${prefix}${child.name}`)
 
   const result = await updateShard(context, positions, child, options)
 
   let newName = prefix
 
-  if (result.node.links.length === 1) {
+  if (result.node.Links.length === 1) {
     log(`Removing subshard for ${prefix}`)
 
     // convert shard back to normal dir
-    result.cid = result.node.links[0].cid
-    result.node = result.node.links[0]
+    result.cid = result.node.Links[0].Hash
+    result.node = result.node.Links[0]
 
-    newName = `${prefix}${result.node.name.substring(2)}`
+    newName = `${prefix}${result.node.Name.substring(2)}`
   }
 
   log(`Updating shard ${prefix} with name ${newName}`)
 
-  return updateShardParent(context, bucket, node, prefix, newName, result.node.size, result.cid, options)
+  const size = DAGNode.isDAGNode(result.node) ? result.node.size : result.node.Tsize
+
+  return updateShardParent(context, bucket, node, prefix, newName, size, result.cid, options)
 }
 
 const updateShardParent = async (context, bucket, parent, oldName, newName, size, cid, options) => {
   parent = await DAGNode.rmLink(parent, oldName)
-  parent = await DAGNode.addLink(parent, await DAGLink.create(newName, size, cid))
+  parent = await DAGNode.addLink(parent, new DAGLink(newName, size, cid))
 
-  return updateHamtDirectory(context, parent.links, bucket, options)
+  return updateHamtDirectory(context, parent.Links, bucket, options)
 }
 
 module.exports = removeLink

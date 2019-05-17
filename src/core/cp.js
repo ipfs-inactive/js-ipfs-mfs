@@ -28,11 +28,11 @@ module.exports = (context) => {
     } = await toSourcesAndDestination(context, args)
 
     if (!sources.length) {
-      throw errCode(new Error('Please supply at least one source'), 'EINVALIDPARAMS')
+      throw errCode(new Error('Please supply at least one source'), 'ERR_INVALID_PARAMS')
     }
 
     if (!destination) {
-      throw errCode(new Error('Please supply a destination'), 'EINVALIDPARAMS')
+      throw errCode(new Error('Please supply a destination'), 'ERR_INVALID_PARAMS')
     }
 
     options.parents = options.p || options.parents
@@ -41,7 +41,7 @@ module.exports = (context) => {
     const missing = sources.find(source => !source.exists)
 
     if (missing) {
-      throw errCode(new Error(`${missing.path} does not exist`), 'EINVALIDPARAMS')
+      throw errCode(new Error(`${missing.path} does not exist`), 'ERR_INVALID_PARAMS')
     }
 
     const destinationIsDirectory = isDirectory(destination)
@@ -50,14 +50,14 @@ module.exports = (context) => {
       log('Destination exists')
 
       if (sources.length === 1 && !destinationIsDirectory) {
-        throw errCode(new Error('directory already has entry by that name'), 'EALREADYEXISTS')
+        throw errCode(new Error('directory already has entry by that name'), 'ERR_ALREADY_EXISTS')
       }
     } else {
       log('Destination does not exist')
 
       if (sources.length > 1) {
         if (!options.parents) {
-          throw errCode(new Error('destination did not exist, pass -p to create intermediate directories'), 'EINVALIDPARAMS')
+          throw errCode(new Error('destination did not exist, pass -p to create intermediate directories'), 'ERR_INVALID_PARAMS')
         }
 
         await mkdir(context)(destination.path, options)

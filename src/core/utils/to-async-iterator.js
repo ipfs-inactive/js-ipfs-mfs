@@ -2,14 +2,14 @@
 
 const errCode = require('err-code')
 const fs = require('fs')
-const log = require('debug')('ipfs:mfs:utils:to-pull-source')
+const log = require('debug')('ipfs:mfs:utils:to-async-iterator')
 const {
   MAX_CHUNK_SIZE
 } = require('./constants')
 
 const toAsyncIterator = async (content) => {
   if (!content) {
-    throw errCode(new Error('paths must start with a leading /'), 'EINVALIDPATH')
+    throw errCode(new Error('paths must start with a leading /'), 'ERR_INVALID_PATH')
   }
 
   if (typeof content === 'string' || content instanceof String) {
@@ -85,7 +85,7 @@ const toAsyncIterator = async (content) => {
     }
   }
 
-  throw errCode(new Error(`Don't know how to convert ${content} into an async iterator`), 'EINVALIDPARAMS')
+  throw errCode(new Error(`Don't know how to convert ${content} into an async iterator`), 'ERR_INVALID_PARAMS')
 }
 
 module.exports = toAsyncIterator

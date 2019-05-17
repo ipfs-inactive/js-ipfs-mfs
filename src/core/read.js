@@ -20,11 +20,11 @@ module.exports = (context) => {
         const result = await exporter(mfsPath.mfsPath, context.ipld)
 
         if (result.unixfs.type !== 'file') {
-          throw errCode(new Error(`${path} was not a file`), 'ENOTFILE')
+          throw errCode(new Error(`${path} was not a file`), 'ERR_NOT_FILE')
         }
 
         if (!result.content) {
-          throw errCode(new Error(`Could not load content stream from ${path}`), 'ENOCONTENT')
+          throw errCode(new Error(`Could not load content stream from ${path}`), 'ERR_NO_CONTENT')
         }
 
         for await (const buf of result.content({

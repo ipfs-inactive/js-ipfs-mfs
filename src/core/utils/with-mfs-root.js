@@ -4,7 +4,7 @@ const CID = require('cids')
 const UnixFs = require('ipfs-unixfs')
 const {
   DAGNode
-} = require('./dag-pb')
+} = require('ipld-dag-pb')
 const log = require('debug')('ipfs:mfs:utils:with-mfs-root')
 const mc = require('multicodec')
 const mh = require('multihashes')
@@ -30,7 +30,7 @@ const loadMfsRoot = async (context) => {
     }
 
     log('Creating new MFS root')
-    const node = await DAGNode.create(new UnixFs('directory').marshal())
+    const node = DAGNode.create(new UnixFs('directory').marshal())
     cid = await context.ipld.put(node, mc.DAG_PB, {
       cidVersion: 0,
       hashAlg: mh.names['sha2-256'] // why can't ipld look this up?
@@ -39,7 +39,7 @@ const loadMfsRoot = async (context) => {
     await context.repo.datastore.put(MFS_ROOT_KEY, cid.buffer)
   }
 
-  log(`Loaded MFS root /ipfs/${cid.toBaseEncodedString()}`)
+  log(`Loaded MFS root /ipfs/${cid}`)
 
   return cid
 }

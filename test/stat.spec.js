@@ -5,13 +5,8 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const crypto = require('crypto')
-const CID = require('cids')
 const createMfs = require('./helpers/create-mfs')
 const createShardedDirectory = require('./helpers/create-sharded-directory')
-const {
-  EMPTY_DIRECTORY_HASH,
-  EMPTY_DIRECTORY_HASH_BASE32
-} = require('./helpers/constants')
 
 describe('stat', () => {
   let mfs
@@ -106,13 +101,13 @@ describe('stat', () => {
 
     const stats = await mfs.stat(filePath)
     const node = await mfs.ipld.get(stats.cid)
-    const child = node.links[0]
+    const child = node.Links[0]
 
-    expect(child.cid.codec).to.equal('raw')
+    expect(child.Hash.codec).to.equal('raw')
 
-    const rawNodeStats = await mfs.stat(`/ipfs/${child.cid.toBaseEncodedString()}`)
+    const rawNodeStats = await mfs.stat(`/ipfs/${child.Hash}`)
 
-    expect(rawNodeStats.cid.toBaseEncodedString()).to.equal(child.cid.toBaseEncodedString())
+    expect(rawNodeStats.cid.toString()).to.equal(child.Hash.toString())
     expect(rawNodeStats.type).to.equal('file') // this is what go does
   })
 
@@ -127,19 +122,19 @@ describe('stat', () => {
 
     const stats = await mfs.stat(filePath)
     const node = await mfs.ipld.get(stats.cid)
-    const child = node.links[0]
+    const child = node.Links[0]
 
-    expect(child.cid.codec).to.equal('raw')
+    expect(child.Hash.codec).to.equal('raw')
 
     const dir = `/dir-with-raw-${Date.now()}`
     const path = `${dir}/raw-${Date.now()}`
 
     await mfs.mkdir(dir)
-    await mfs.cp(`/ipfs/${child.cid.toBaseEncodedString()}`, path)
+    await mfs.cp(`/ipfs/${child.Hash}`, path)
 
     const rawNodeStats = await mfs.stat(path)
 
-    expect(rawNodeStats.cid.toBaseEncodedString()).to.equal(child.cid.toBaseEncodedString())
+    expect(rawNodeStats.cid.toString()).to.equal(child.Hash.toString())
     expect(rawNodeStats.type).to.equal('file') // this is what go does
   })
 

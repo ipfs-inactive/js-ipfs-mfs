@@ -51,11 +51,11 @@ module.exports = (context) => {
     })()
     log('Read source, destination and parent')
     if (!options.parents && !parent.exists) {
-      throw errCode(new Error('directory does not exist'), 'ENOEXIST')
+      throw errCode(new Error('directory does not exist'), 'ERR_NO_EXIST')
     }
 
     if (!options.create && !destination.exists) {
-      throw errCode(new Error('file does not exist'), 'ENOEXIST')
+      throw errCode(new Error('file does not exist'), 'ERR_NO_EXIST')
     }
 
     return updateOrImport(context, path, source, destination, options)
@@ -91,7 +91,7 @@ const updateOrImport = async (context, path, source, destination, options) => {
     const parent = trail[trail.length - 1]
 
     if (!parent.type.includes('directory')) {
-      throw errCode(new Error(`cannot write to ${parent.name}: Not a directory`), 'ENOTADIRECTORY')
+      throw errCode(new Error(`cannot write to ${parent.name}: Not a directory`), 'ERR_NOT_A_DIRECTORY')
     }
 
     const parentNode = await context.ipld.get(parent.cid)
@@ -120,7 +120,7 @@ const updateOrImport = async (context, path, source, destination, options) => {
 
 const write = async (context, source, destination, options) => {
   if (destination.exists) {
-    log(`Overwriting file ${destination.cid.toBaseEncodedString()} offset ${options.offset} length ${options.length}`)
+    log(`Overwriting file ${destination.cid} offset ${options.offset} length ${options.length}`)
   } else {
     log(`Writing file offset ${options.offset} length ${options.length}`)
   }
@@ -186,7 +186,7 @@ const write = async (context, source, destination, options) => {
     leafType: options.leafType
   }))
 
-  log(`Wrote ${result.cid.toBaseEncodedString()}`)
+  log(`Wrote ${result.cid}`)
 
   return {
     cid: result.cid,

@@ -38,11 +38,11 @@ module.exports = (context) => {
         return
       }
 
-      throw errCode(new Error(`cannot create directory '${FILE_SEPARATOR}': Already exists`), 'EINVALIDPATH')
+      throw errCode(new Error(`cannot create directory '${FILE_SEPARATOR}': Already exists`), 'ERR_INVALID_PATH')
     }
 
     if (path.substring(0, 1) !== FILE_SEPARATOR) {
-      throw errCode(new Error('paths must start with a leading /'), 'EINVALIDPATH')
+      throw errCode(new Error('paths must start with a leading /'), 'ERR_INVALID_PATH')
     }
 
     log(`Creating ${path}`)
@@ -50,7 +50,7 @@ module.exports = (context) => {
     const pathComponents = toPathComponents(path)
 
     if (pathComponents[0] === 'ipfs') {
-      throw errCode(new Error("path cannot have the prefix 'ipfs'"), 'EINVALIDPATH')
+      throw errCode(new Error("path cannot have the prefix 'ipfs'"), 'ERR_INVALID_PATH')
     }
 
     let root = await withMfsRoot(context)
@@ -61,19 +61,19 @@ module.exports = (context) => {
     // make sure the containing folder exists, creating it if necessary
     for (let i = 0; i <= pathComponents.length; i++) {
       const subPathComponents = pathComponents.slice(0, i)
-      const subPath = `/ipfs/${root.toBaseEncodedString()}/${subPathComponents.join('/')}`
+      const subPath = `/ipfs/${root}/${subPathComponents.join('/')}`
 
       try {
         parent = await exporter(subPath, context.ipld)
         log(`${subPath} existed`)
-        log(`${subPath} had children ${parent.node.links.map(link => link.name)}`)
+        log(`${subPath} had children ${parent.node.Links.map(link => link.Name)}`)
 
         if (i === pathComponents.length) {
           if (options.parents) {
             return
           }
 
-          throw errCode(new Error('file already exists'), 'EALREADYEXISTS')
+          throw errCode(new Error('file already exists'), 'ERR_ALREADY_EXISTS')
         }
 
         trail.push({
@@ -106,7 +106,7 @@ module.exports = (context) => {
 }
 
 const addEmptyDir = async (context, childName, emptyDir, parent, trail, options) => {
-  log(`Adding empty dir called ${childName} to ${parent.cid.toBaseEncodedString()}`)
+  log(`Adding empty dir called ${childName} to ${parent.cid}`)
 
   const result = await addLink(context, {
     parent: parent.node,

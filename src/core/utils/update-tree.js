@@ -52,7 +52,7 @@ const updateTree = async (context, trail, options) => {
     }
   }
 
-  log(`Final CID ${child.cid.toBaseEncodedString('')}`)
+  log(`Final CID ${child.cid}`)
 
   return child.cid
 }

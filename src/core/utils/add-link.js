@@ -3,11 +3,11 @@
 const {
   DAGNode,
   DAGLink
-} = require('./dag-pb')
+} = require('ipld-dag-pb')
 const CID = require('cids')
 const log = require('debug')('ipfs:mfs:core:utils:add-link')
 const UnixFS = require('ipfs-unixfs')
-const DirSharded = require('ipfs-unixfs-importer/src/importer/dir-sharded')
+const DirSharded = require('ipfs-unixfs-importer/src/dir-sharded')
 const {
   updateHamtDirectory,
   recreateHamtLevel,
@@ -16,9 +16,9 @@ const {
   addLinksToHamtBucket
 } = require('./hamt-utils')
 const errCode = require('err-code')
-const promisify = require('promisify-es6')
 const mc = require('multicodec')
 const mh = require('multihashes')
+const last = require('async-iterator-last')
 
 const addLink = async (context, options) => {
   if (!options.parentCid && !options.parent) {
@@ -30,7 +30,7 @@ const addLink = async (context, options) => {
   }
 
   if (!options.parent) {
-    log('Loading parent node', options.parentCid.toBaseEncodedString())
+    log(`Loading parent node ${options.parentCid}`)
 
     options.parent = await context.ipld.get(options.parentCid)
   }
@@ -51,7 +51,7 @@ const addLink = async (context, options) => {
     throw errCode(new Error('No child size passed to addLink'), 'EINVALIDCHILDSIZE')
   }
 
-  const meta = UnixFS.unmarshal(options.parent.data)
+  const meta = UnixFS.unmarshal(options.parent.Data)
 
   if (meta.type === 'hamt-sharded-directory') {
     log('Adding link to sharded directory')
@@ -59,36 +59,36 @@ const addLink = async (context, options) => {
     return addToShardedDirectory(context, options)
   }
 
-  if (options.parent.links.length >= options.shardSplitThreshold) {
+  if (options.parent.Links.length >= options.shardSplitThreshold) {
     log('Converting directory to sharded directory')
 
     return convertToShardedDirectory(context, options)
   }
 
-  log(`Adding ${options.name} (${options.cid.toBaseEncodedString()}) to regular directory`)
+  log(`Adding ${options.name} (${options.cid}) to regular directory`)
 
   return addToDirectory(context, options)
 }
 
 const convertToShardedDirectory = async (context, options) => {
-  const result = await createShard(context, options.parent.links.map(link => ({
-    name: link.name,
-    size: link.size,
-    cid: link.cid
+  const result = await createShard(context, options.parent.Links.map(link => ({
+    name: link.Name,
+    size: link.Tsize,
+    cid: link.Hash
   })).concat({
     name: options.name,
     size: options.size,
     cid: options.cid
-  }))
+  }), options)
 
-  log('Converted directory to sharded directory', result.cid.toBaseEncodedString())
+  log(`Converted directory to sharded directory ${result.cid}`)
 
   return result
 }
 
 const addToDirectory = async (context, options) => {
   let parent = await DAGNode.rmLink(options.parent, options.name)
-  parent = await DAGNode.addLink(parent, await DAGLink.create(options.name, options.size, options.cid))
+  parent = await DAGNode.addLink(parent, new DAGLink(options.name, options.size, options.cid))
 
   const format = mc[options.format.toUpperCase().replace(/-/g, '_')]
   const hashAlg = mh.names[options.hashAlg]
@@ -111,24 +111,24 @@ const addToShardedDirectory = async (context, options) => {
     shard, path
   } = await addFileToShardedDirectory(context, options)
 
-  const result = await shard.flush('', context.ipld, null)
+  const result = await last(shard.flush('', context.ipld))
 
   // we have written out the shard, but only one sub-shard will have been written so replace it in the original shard
-  const oldLink = options.parent.links
-    .find(link => link.name.substring(0, 2) === path[0].prefix)
+  const oldLink = options.parent.Links
+    .find(link => link.Name.substring(0, 2) === path[0].prefix)
 
-  const newLink = result.node.links
-    .find(link => link.name.substring(0, 2) === path[0].prefix)
+  const newLink = result.node.Links
+    .find(link => link.Name.substring(0, 2) === path[0].prefix)
 
   let parent = options.parent
 
   if (oldLink) {
-    parent = await DAGNode.rmLink(options.parent, oldLink.name)
+    parent = await DAGNode.rmLink(options.parent, oldLink.Name)
   }
 
   parent = await DAGNode.addLink(parent, newLink)
 
-  return updateHamtDirectory(context, parent.links, path[0].bucket, options)
+  return updateHamtDirectory(context, parent.Links, path[0].bucket, options)
 }
 
 const addFileToShardedDirectory = async (context, options) => {
@@ -139,7 +139,7 @@ const addFileToShardedDirectory = async (context, options) => {
   }
 
   // start at the root bucket and descend, loading nodes as we go
-  const rootBucket = await recreateHamtLevel(options.parent.links)
+  const rootBucket = await recreateHamtLevel(options.parent.Links)
 
   const shard = new DirSharded({
     root: true,
@@ -149,12 +149,8 @@ const addFileToShardedDirectory = async (context, options) => {
     path: '',
     dirty: true,
     flat: false
-  })
+  }, options)
   shard._bucket = rootBucket
-
-  shard.flush = promisify(shard.flush, {
-    context: shard
-  })
 
   // load subshards until the bucket & position no longer changes
   const position = await rootBucket._findNewBucketAndPos(file.name)
@@ -167,8 +163,8 @@ const addFileToShardedDirectory = async (context, options) => {
     index++
     let node = segment.node
 
-    let link = node.links
-      .find(link => link.name.substring(0, 2) === segment.prefix)
+    let link = node.Links
+      .find(link => link.Name.substring(0, 2) === segment.prefix)
 
     if (!link) {
       // prefix is new, file will be added to the current bucket
@@ -178,7 +174,7 @@ const addFileToShardedDirectory = async (context, options) => {
       break
     }
 
-    if (link.name === `${segment.prefix}${file.name}`) {
+    if (link.Name === `${segment.prefix}${file.name}`) {
       // file already existed, file will be added to the current bucket
       log(`Link ${segment.prefix}${file.name} will be replaced`)
       index = path.length
@@ -186,9 +182,9 @@ const addFileToShardedDirectory = async (context, options) => {
       break
     }
 
-    if (link.name.length > 2) {
+    if (link.Name.length > 2) {
       // another file had the same prefix, will be replaced with a subshard
-      log(`Link ${link.name} will be replaced with a subshard`)
+      log(`Link ${link.Name} will be replaced with a subshard`)
       index = path.length
 
       break
@@ -196,12 +192,12 @@ const addFileToShardedDirectory = async (context, options) => {
 
     // load sub-shard
     log(`Found subshard ${segment.prefix}`)
-    const subShard = await context.ipld.get(link.cid)
+    const subShard = await context.ipld.get(link.Hash)
 
     // subshard hasn't been loaded, descend to the next level of the HAMT
     if (!path[index]) {
       log(`Loaded new subshard ${segment.prefix}`)
-      await recreateHamtLevel(subShard.links, rootBucket, segment.bucket, parseInt(segment.prefix, 16))
+      await recreateHamtLevel(subShard.Links, rootBucket, segment.bucket, parseInt(segment.prefix, 16))
 
       const position = await rootBucket._findNewBucketAndPos(file.name)
 
@@ -217,7 +213,7 @@ const addFileToShardedDirectory = async (context, options) => {
     const nextSegment = path[index]
 
     // add next level's worth of links to bucket
-    await addLinksToHamtBucket(subShard.links, nextSegment.bucket, rootBucket)
+    await addLinksToHamtBucket(subShard.Links, nextSegment.bucket, rootBucket)
 
     nextSegment.node = subShard
   }

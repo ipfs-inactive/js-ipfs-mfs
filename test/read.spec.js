@@ -121,7 +121,7 @@ describe('read', () => {
         await streamToBuffer(mfs.read(path))
         throw new Error('Should have errored on trying to read a directory')
       } catch (err) {
-        expect(err.code).to.equal('ENOTFILE')
+        expect(err.code).to.equal('ERR_NOT_FILE')
       }
     })
 

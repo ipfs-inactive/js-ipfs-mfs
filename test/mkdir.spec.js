@@ -31,7 +31,7 @@ describe('mkdir', () => {
       await mfs.mkdir('foo')
       throw new Error('No error was thrown when creating an directory with no leading slash')
     } catch (err) {
-      expect(err.code).to.equal('EINVALIDPATH')
+      expect(err.code).to.equal('ERR_INVALID_PATH')
     }
   })
 
@@ -84,7 +84,7 @@ describe('mkdir', () => {
 
       throw new Error('Did not refuse to create a path that already exists')
     } catch (err) {
-      expect(err.code).to.contain('EALREADYEXISTS')
+      expect(err.code).to.equal('ERR_ALREADY_EXISTS')
     }
   })
 
@@ -112,12 +112,11 @@ describe('mkdir', () => {
     expect(files.length).to.equal(0)
   })
 
-  it.only('creates a nested directories', async () => {
-    await mfs.mkdir('/foo')
-    await mfs.mkdir('/bar')
-    await mfs.mkdir('/bar/baz')
+  it('creates nested directories', async () => {
+    await mfs.mkdir('/nested-dir')
+    await mfs.mkdir('/nested-dir/baz')
 
-    const files = await all(mfs.ls('/bar'))
+    const files = await all(mfs.ls('/nested-dir'))
 
     expect(files.length).to.equal(1)
   })

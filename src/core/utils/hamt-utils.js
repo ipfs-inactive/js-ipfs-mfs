@@ -2,14 +2,14 @@
 
 const {
   DAGNode
-} = require('./dag-pb')
+} = require('ipld-dag-pb')
 const Bucket = require('hamt-sharding/src/bucket')
-const DirSharded = require('ipfs-unixfs-importer/src/importer/dir-sharded')
+const DirSharded = require('ipfs-unixfs-importer/src/dir-sharded')
 const log = require('debug')('ipfs:mfs:core:utils:hamt-utils')
 const UnixFS = require('ipfs-unixfs')
-const promisify = require('promisify-es6')
 const mc = require('multicodec')
 const mh = require('multihashes')
+const last = require('async-iterator-last')
 
 const updateHamtDirectory = async (context, links, bucket, options) => {
   // update parent with new bit field
@@ -21,7 +21,7 @@ const updateHamtDirectory = async (context, links, bucket, options) => {
   const format = mc[options.format.toUpperCase().replace(/-/g, '_')]
   const hashAlg = mh.names[options.hashAlg]
 
-  const parent = await DAGNode.create(dir.marshal(), links)
+  const parent = DAGNode.create(dir.marshal(), links)
   const cid = await context.ipld.put(parent, format, {
     cidVersion: options.cidVersion,
     hashAlg,
@@ -53,8 +53,8 @@ const recreateHamtLevel = async (links, rootBucket, parentBucket, positionAtPare
 const addLinksToHamtBucket = async (links, bucket, rootBucket) => {
   await Promise.all(
     links.map(link => {
-      if (link.name.length === 2) {
-        const pos = parseInt(link.name, 16)
+      if (link.Name.length === 2) {
+        const pos = parseInt(link.Name, 16)
 
         bucket._putObjectAt(pos, new Bucket({
           hashFn: DirSharded.hashFn
@@ -63,9 +63,9 @@ const addLinksToHamtBucket = async (links, bucket, rootBucket) => {
         return Promise.resolve()
       }
 
-      return (rootBucket || bucket).put(link.name.substring(2), {
-        size: link.size,
-        cid: link.cid
+      return (rootBucket || bucket).put(link.Name.substring(2), {
+        size: link.TSize,
+        cid: link.Hash
       })
     })
   )
@@ -81,7 +81,7 @@ const toPrefix = (position) => {
 
 const generatePath = async (context, fileName, rootNode) => {
   // start at the root bucket and descend, loading nodes as we go
-  const rootBucket = await recreateHamtLevel(rootNode.links, null, null, null)
+  const rootBucket = await recreateHamtLevel(rootNode.Links, null, null, null)
   const position = await rootBucket._findNewBucketAndPos(fileName)
 
   // the path to the root bucket
@@ -108,8 +108,8 @@ const generatePath = async (context, fileName, rootNode) => {
     const segment = path[i]
 
     // find prefix in links
-    const link = segment.node.links
-      .filter(link => link.name.substring(0, 2) === segment.prefix)
+    const link = segment.node.Links
+      .filter(link => link.Name.substring(0, 2) === segment.prefix)
       .pop()
 
     // entry was not in shard
@@ -121,7 +121,7 @@ const generatePath = async (context, fileName, rootNode) => {
     }
 
     // found entry
-    if (link.name === `${segment.prefix}${fileName}`) {
+    if (link.Name === `${segment.prefix}${fileName}`) {
       log(`Link ${segment.prefix}${fileName} will be replaced`)
       // file already existed, file will be added to the current bucket
       // return path
@@ -130,13 +130,13 @@ const generatePath = async (context, fileName, rootNode) => {
 
     // found subshard
     log(`Found subshard ${segment.prefix}`)
-    const node = await context.ipld.get(link.cid)
+    const node = await context.ipld.get(link.Hash)
 
     // subshard hasn't been loaded, descend to the next level of the HAMT
     if (!path[i + 1]) {
       log(`Loaded new subshard ${segment.prefix}`)
 
-      await recreateHamtLevel(node.links, rootBucket, segment.bucket, parseInt(segment.prefix, 16))
+      await recreateHamtLevel(node.Links, rootBucket, segment.bucket, parseInt(segment.prefix, 16))
       const position = await rootBucket._findNewBucketAndPos(fileName)
 
       // i--
@@ -152,7 +152,7 @@ const generatePath = async (context, fileName, rootNode) => {
     const nextSegment = path[i + 1]
 
     // add intermediate links to bucket
-    await addLinksToHamtBucket(node.links, nextSegment.bucket, rootBucket)
+    await addLinksToHamtBucket(node.Links, nextSegment.bucket, rootBucket)
 
     nextSegment.node = node
   }
@@ -175,10 +175,8 @@ const createShard = async (context, contents, options) => {
     parentKey: null,
     path: '',
     dirty: true,
-    flat: false,
-
-    ...options
-  })
+    flat: false
+  }, options)
 
   for (let i = 0; i < contents.length; i++) {
     await shard._bucket.put(contents[i].name, {
@@ -187,11 +185,7 @@ const createShard = async (context, contents, options) => {
     })
   }
 
-  shard.flush = promisify(shard.flush, {
-    context: shard
-  })
-
-  return shard.flush('', context.ipld, null)
+  return last(shard.flush('', context.ipld, null))
 }
 
 module.exports = {

@@ -57,7 +57,7 @@ const statters = {
     }
   },
   'dag-pb': (file) => {
-    let blocks = file.node.links.length
+    let blocks = file.node.Links.length
     let size = file.node.size
     let cumulativeSize = file.node.size
     let nodeType = null
