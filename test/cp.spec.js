@@ -207,6 +207,22 @@ describe('cp', () => {
     expect(destinationStats.size).to.equal(100)
   })
 
+  it('copies files to deep mfs paths and creates interim directories', async () => {
+    const source = `/source-file-${Math.random()}.txt`
+    const destination = `/really/deep/path/to/dest-file-${Math.random()}.txt`
+
+    await mfs.write(source, crypto.randomBytes(100), {
+      create: true
+    })
+
+    await mfs.cp(source, destination, {
+      parents: true
+    })
+
+    const destinationStats = await mfs.stat(destination)
+    expect(destinationStats.size).to.equal(100)
+  })
+
   it('copies a sharded directory to a normal directory', async () => {
     const shardedDirPath = await createShardedDirectory(mfs)
 
