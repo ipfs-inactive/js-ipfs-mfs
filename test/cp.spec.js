@@ -207,7 +207,7 @@ describe('cp', () => {
     expect(destinationStats.size).to.equal(100)
   })
 
-  it('copies files to deep mfs paths and creates interim directories', async () => {
+  it('copies files to deep mfs paths and creates intermediate directories', async () => {
     const source = `/source-file-${Math.random()}.txt`
     const destination = `/really/deep/path/to/dest-file-${Math.random()}.txt`
 
@@ -221,6 +221,22 @@ describe('cp', () => {
 
     const destinationStats = await mfs.stat(destination)
     expect(destinationStats.size).to.equal(100)
+  })
+
+  it('fails to copy files to deep mfs paths when intermediate directories do not exist', async () => {
+    const source = `/source-file-${Math.random()}.txt`
+    const destination = `/really/deep/path-${Math.random()}/to-${Math.random()}/dest-file-${Math.random()}.txt`
+
+    await mfs.write(source, crypto.randomBytes(100), {
+      create: true
+    })
+
+    try {
+      await mfs.cp(source, destination)
+      throw new Error('No error was thrown when copying to deep directory with missing intermediate directories')
+    } catch (err) {
+      expect(err).to.have.property('code', 'ERR_INVALID_PARAMS')
+    }
   })
 
   it('copies a sharded directory to a normal directory', async () => {
