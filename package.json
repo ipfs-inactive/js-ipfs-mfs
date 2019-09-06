@@ -65,7 +65,7 @@
     "ipfs-unixfs-importer": "~0.39.9",
     "ipld-dag-pb": "~0.17.2",
     "joi-browser": "^13.4.0",
-    "mortice": "^1.2.1",
+    "mortice": "^2.0.0",
     "multicodec": "~0.5.3",
     "multihashes": "~0.4.14",
     "once": "^1.4.0",
