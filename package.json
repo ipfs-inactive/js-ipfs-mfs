@@ -45,9 +45,9 @@
     "detect-webworker": "^1.0.0",
     "dirty-chai": "^2.0.1",
     "ipfs-block-service": "~0.16.0",
-    "ipfs-repo": "~0.27.0",
+    "ipfs-repo": "^0.29.1",
     "ipld": "~0.25.0",
-    "memdown": "^4.0.0",
+    "memdown": "^5.1.0",
     "temp-write": "^4.0.0"
   },
   "dependencies": {
@@ -58,7 +58,7 @@
     "debug": "^4.1.0",
     "err-code": "^2.0.0",
     "hamt-sharding": "~0.0.2",
-    "interface-datastore": "~0.7.0",
+    "interface-datastore": "^0.8.0",
     "ipfs-multipart": "~0.2.0",
     "ipfs-unixfs": "~0.1.16",
     "ipfs-unixfs-exporter": "~0.38.0",
