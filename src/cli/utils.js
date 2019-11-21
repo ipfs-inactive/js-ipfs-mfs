@@ -31,8 +31,13 @@ const asBoolean = (value) => {
   return false
 }
 
+const asOctal = (value) => {
+  return parseInt(value, 8)
+}
+
 module.exports = {
   disablePrinting,
   print,
-  asBoolean
+  asBoolean,
+  asOctal
 }

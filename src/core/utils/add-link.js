@@ -61,7 +61,11 @@ const addLink = async (context, options) => {
   if (options.parent.Links.length >= options.shardSplitThreshold) {
     log('Converting directory to sharded directory')
 
-    return convertToShardedDirectory(context, options)
+    return convertToShardedDirectory(context, {
+      ...options,
+      mtime: meta.mtime,
+      mode: meta.mode
+    })
   }
 
   log(`Adding ${options.name} (${options.cid}) to regular directory`)
@@ -88,6 +92,15 @@ const convertToShardedDirectory = async (context, options) => {
 const addToDirectory = async (context, options) => {
   options.parent.rmLink(options.name)
   options.parent.addLink(new DAGLink(options.name, options.size, options.cid))
+
+  const node = UnixFS.unmarshal(options.parent.Data)
+
+  // Update mtime if set previously
+  if (node.mtime) {
+    node.mtime = parseInt(Date.now() / 1000)
+
+    options.parent.Data = UnixFS.unmarshal(node)
+  }
 
   const format = mc[options.format.toUpperCase().replace(/-/g, '_')]
   const hashAlg = mh.names[options.hashAlg]
@@ -137,6 +150,7 @@ const addFileToShardedDirectory = async (context, options) => {
 
   // start at the root bucket and descend, loading nodes as we go
   const rootBucket = await recreateHamtLevel(options.parent.Links)
+  const node = UnixFS.unmarshal(options.parent.Data)
 
   const shard = new DirSharded({
     root: true,
@@ -145,9 +159,15 @@ const addFileToShardedDirectory = async (context, options) => {
     parentKey: null,
     path: '',
     dirty: true,
-    flat: false
+    flat: false,
+    mode: node.mode
   }, options)
   shard._bucket = rootBucket
+
+  // Update mtime if set previously
+  if (node.mtime) {
+    shard.mtime = parseInt(Date.now() / 1000)
+  }
 
   // load subshards until the bucket & position no longer changes
   const position = await rootBucket._findNewBucketAndPos(file.name)

@@ -84,7 +84,9 @@ const statters = {
       type: nodeType,
       local: undefined,
       sizeLocal: undefined,
-      withLocality: false
+      withLocality: false,
+      mtime: file.unixfs.mtime,
+      mode: file.unixfs.mode
     }
   },
   'dag-cbor': (file) => {

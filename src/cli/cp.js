@@ -18,7 +18,7 @@ module.exports = {
       describe: 'Create any non-existent intermediate directories'
     },
     format: {
-      alias: 'h',
+      alias: 'f',
       type: 'string',
       default: 'dag-pb',
       describe: 'If intermediate directories are created, use this format to create them (experimental)'

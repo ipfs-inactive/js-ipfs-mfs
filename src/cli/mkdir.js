@@ -1,7 +1,8 @@
 'use strict'
 
 const {
-  asBoolean
+  asBoolean,
+  asOctal
 } = require('./utils')
 
 module.exports = {
@@ -38,6 +39,20 @@ module.exports = {
       type: 'number',
       default: 1000,
       describe: 'If a directory has more links than this, it will be transformed into a hamt-sharded-directory'
+    },
+    mode: {
+      alias: 'm',
+      type: 'number',
+      default: true,
+      coerce: asOctal,
+      describe: 'Mode to apply to the new directory'
+    },
+    mtime: {
+      alias: 'm',
+      type: 'number',
+      default: true,
+      coerce: asOctal,
+      describe: 'Mtime to apply to the new directory'
     }
   },
 
@@ -49,7 +64,9 @@ module.exports = {
       cidVersion,
       hashAlg,
       flush,
-      shardSplitThreshold
+      shardSplitThreshold,
+      mode,
+      mtime
     } = argv
 
     argv.resolve((async () => {
@@ -60,7 +77,9 @@ module.exports = {
         cidVersion,
         hashAlg,
         flush,
-        shardSplitThreshold
+        shardSplitThreshold,
+        mode,
+        mtime
       })
     })())
   }

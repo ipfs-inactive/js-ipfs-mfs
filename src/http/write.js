@@ -93,7 +93,8 @@ const mfsWrite = {
           'balanced',
           'trickle'
         ]).default('trickle'),
-        flush: Joi.boolean().default(true)
+        flush: Joi.boolean().default(true),
+        shardSplitThreshold: Joi.number().integer().min(0).default(1000)
       })
         .rename('o', 'offset', {
           override: true,

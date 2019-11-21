@@ -18,6 +18,15 @@ const updateHamtDirectory = async (context, links, bucket, options) => {
   dir.fanout = bucket.tableSize()
   dir.hashType = DirSharded.hashFn.code
 
+  const node = UnixFS.unmarshal(options.parent.Data)
+
+  // Update mtime if set previously
+  if (node.mtime) {
+    node.mtime = parseInt(Date.now() / 1000)
+
+    dir.Data = UnixFS.unmarshal(node)
+  }
+
   const format = mc[options.format.toUpperCase().replace(/-/g, '_')]
   const hashAlg = mh.names[options.hashAlg]
 
@@ -175,7 +184,9 @@ const createShard = async (context, contents, options) => {
     parentKey: null,
     path: '',
     dirty: true,
-    flat: false
+    flat: false,
+    mtime: options.mtime,
+    mode: options.mode
   }, options)
 
   for (let i = 0; i < contents.length; i++) {

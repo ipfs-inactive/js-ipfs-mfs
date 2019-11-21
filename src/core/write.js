@@ -34,12 +34,13 @@ const defaultOptions = {
   strategy: 'trickle',
   flush: true,
   leafType: 'raw',
-  shardSplitThreshold: 1000
+  shardSplitThreshold: 1000,
+  mode: undefined,
+  mtime: undefined
 }
 
 module.exports = (context) => {
   return async function mfsWrite (path, content, options) {
-    log('Hello world, writing', path, content, options)
     options = applyDefaultOptions(options, defaultOptions)
 
     let source, destination, parent
@@ -175,7 +176,11 @@ const write = async (context, source, destination, options) => {
   })
 
   const result = await last(importer([{
-    content: content
+    content: content,
+
+    // persist mode & mtime if set previously
+    mode: (destination.unixfs && destination.unixfs.mode) || options.mode,
+    mtime: (destination.unixfs && destination.unixfs.mtime) ? parseInt(new Date() / 1000) : options.mtime
   }], context.ipld, {
     progress: options.progress,
     hashAlg: options.hashAlg,

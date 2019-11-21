@@ -15,17 +15,23 @@ const defaultOptions = {
 const toOutput = (fsEntry) => {
   let type = 0
   let size = fsEntry.node.size || fsEntry.node.length
+  let mode
+  let mtime
 
   if (fsEntry.unixfs) {
     size = fsEntry.unixfs.fileSize()
     type = FILE_TYPES[fsEntry.unixfs.type]
+    mode = fsEntry.unixfs.mode
+    mtime = fsEntry.unixfs.mtime
   }
 
   return {
     cid: fsEntry.cid,
     name: fsEntry.name,
     type,
-    size
+    size,
+    mode,
+    mtime
   }
 }
 
