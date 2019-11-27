@@ -9,7 +9,7 @@ const log = require('debug')('ipfs:mfs:core:utils:hamt-utils')
 const UnixFS = require('ipfs-unixfs')
 const mc = require('multicodec')
 const mh = require('multihashes')
-const last = require('async-iterator-last')
+const last = require('it-last')
 
 const updateHamtDirectory = async (context, links, bucket, options) => {
   // update parent with new bit field

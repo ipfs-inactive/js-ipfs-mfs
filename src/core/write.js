@@ -17,7 +17,7 @@ const errCode = require('err-code')
 const {
   MAX_CHUNK_SIZE
 } = require('./utils/constants')
-const last = require('async-iterator-last')
+const last = require('it-last')
 
 const defaultOptions = {
   offset: 0, // the offset in the file to begin writing

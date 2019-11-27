@@ -8,7 +8,7 @@ const multihash = require('multihashes')
 const createMfs = require('./helpers/create-mfs')
 const cidAtPath = require('./helpers/cid-at-path')
 const createShardedDirectory = require('./helpers/create-sharded-directory')
-const all = require('async-iterator-all')
+const all = require('it-all')
 
 describe('mkdir', () => {
   let mfs

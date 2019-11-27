@@ -14,7 +14,7 @@ const createShard = require('./helpers/create-shard')
 const createShardedDirectory = require('./helpers/create-sharded-directory')
 const createTwoShards = require('./helpers/create-two-shards')
 const crypto = require('crypto')
-const all = require('async-iterator-all')
+const all = require('it-all')
 
 let fs, tempWrite
 

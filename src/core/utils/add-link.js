@@ -17,7 +17,7 @@ const {
 const errCode = require('err-code')
 const mc = require('multicodec')
 const mh = require('multihashes')
-const last = require('async-iterator-last')
+const last = require('it-last')
 
 const addLink = async (context, options) => {
   if (!options.parentCid && !options.parent) {
