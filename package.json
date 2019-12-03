@@ -53,6 +53,7 @@
     "ipld": "~0.25.0",
     "it-all": "^1.0.1",
     "memdown": "^5.1.0",
+    "sinon": "^7.5.0",
     "temp-write": "^4.0.0",
     "yargs": "^15.0.2",
     "yargs-promise": "^1.1.0"
