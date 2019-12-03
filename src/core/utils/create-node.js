@@ -23,7 +23,8 @@ const createNode = async (context, type, options) => {
   const node = new DAGNode(metadata.marshal())
   const cid = await context.ipld.put(node, format, {
     cidVersion: options.cidVersion,
-    hashAlg
+    hashAlg,
+    onlyHash: !options.flush
   })
 
   return {
