@@ -24,9 +24,17 @@ module.exports = {
       default: 0,
       describe: 'Cid version to use. (experimental).'
     },
-    'hash-alg': {
+    codec: {
+      alias: 'c',
       type: 'string',
-      describe: 'Hash function to use. Will set Cid version to 1 if used. (experimental).'
+      default: 'dag-pb',
+      describe: 'If intermediate directories are created, use this codec to create them (experimental)'
+    },
+    'hash-alg': {
+      alias: 'h',
+      type: 'string',
+      default: 'sha2-256',
+      describe: 'Hash function to use. Will set CID version to 1 if used'
     },
     flush: {
       alias: 'f',
@@ -41,16 +49,12 @@ module.exports = {
       describe: 'If a directory has more links than this, it will be transformed into a hamt-sharded-directory'
     },
     mode: {
-      alias: 'm',
       type: 'number',
-      default: true,
       coerce: asOctal,
       describe: 'Mode to apply to the new directory'
     },
     mtime: {
-      alias: 'm',
       type: 'number',
-      default: true,
       coerce: asOctal,
       describe: 'Mtime to apply to the new directory'
     }
@@ -62,6 +66,7 @@ module.exports = {
       getIpfs,
       parents,
       cidVersion,
+      codec,
       hashAlg,
       flush,
       shardSplitThreshold,
@@ -75,6 +80,7 @@ module.exports = {
       return ipfs.files.mkdir(path, {
         parents,
         cidVersion,
+        format: codec,
         hashAlg,
         flush,
         shardSplitThreshold,

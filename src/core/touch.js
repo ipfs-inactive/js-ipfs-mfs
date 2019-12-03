@@ -51,7 +51,7 @@ module.exports = (context) => {
       updatedCid = await context.ipld.put(node, mc.DAG_PB, {
         cidVersion: options.cidVersion,
         hashAlg: mh.names['sha2-256'],
-        hashOnly: !options.flush
+        onlyHash: !options.flush
       })
     } else {
       if (cid.codec !== 'dag-pb') {
@@ -70,7 +70,7 @@ module.exports = (context) => {
       updatedCid = await context.ipld.put(node, mc.DAG_PB, {
         cidVersion: cid.version,
         hashAlg: mh.names['sha2-256'],
-        hashOnly: !options.flush
+        onlyHash: !options.flush
       })
     }
 

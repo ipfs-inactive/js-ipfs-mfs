@@ -21,10 +21,23 @@ module.exports = {
       describe: 'The mode to use'
     },
     recursive: {
+      alias: 'r',
       type: 'boolean',
       default: false,
       coerce: asBoolean,
       describe: 'Whether to change modes recursively'
+    },
+    codec: {
+      alias: 'c',
+      type: 'string',
+      default: 'dag-pb',
+      describe: 'If intermediate directories are created, use this codec to create them (experimental)'
+    },
+    'hash-alg': {
+      alias: 'h',
+      type: 'string',
+      default: 'sha2-256',
+      describe: 'Hash function to use. Will set CID version to 1 if used'
     },
     flush: {
       alias: 'f',
@@ -46,6 +59,8 @@ module.exports = {
       mode,
       getIpfs,
       recursive,
+      codec,
+      hashAlg,
       flush,
       shardSplitThreshold
     } = argv
@@ -55,6 +70,8 @@ module.exports = {
 
       return ipfs.files.chmod(path, mode, {
         recursive,
+        format: codec,
+        hashAlg,
         flush,
         shardSplitThreshold
       })

@@ -1,8 +1,8 @@
 /* eslint-env mocha */
 'use strict'
 
-const expect = require('./helpers/chai')
-const createMfs = require('./helpers/create-mfs')
+const expect = require('../helpers/chai')
+const createMfs = require('../helpers/create-mfs')
 
 describe('chmod', () => {
   let mfs

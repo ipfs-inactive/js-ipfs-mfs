@@ -1,8 +1,7 @@
 'use strict'
 
 const {
-  asBoolean,
-  print
+  asBoolean
 } = require('./utils')
 
 module.exports = {
@@ -54,6 +53,7 @@ Mtime: <mtime>`,
     const {
       path,
       getIpfs,
+      print,
       format,
       hash,
       size,

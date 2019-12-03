@@ -34,7 +34,7 @@ const updateHamtDirectory = async (context, links, bucket, options) => {
   const cid = await context.ipld.put(parent, format, {
     cidVersion: options.cidVersion,
     hashAlg,
-    hashOnly: !options.flush
+    onlyHash: !options.flush
   })
 
   return {

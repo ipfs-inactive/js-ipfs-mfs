@@ -5,9 +5,9 @@ const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
 const multihash = require('multihashes')
-const createMfs = require('./helpers/create-mfs')
-const cidAtPath = require('./helpers/cid-at-path')
-const createShardedDirectory = require('./helpers/create-sharded-directory')
+const createMfs = require('../helpers/create-mfs')
+const cidAtPath = require('../helpers/cid-at-path')
+const createShardedDirectory = require('../helpers/create-sharded-directory')
 const all = require('it-all')
 
 describe('mkdir', () => {

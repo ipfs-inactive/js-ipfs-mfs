@@ -16,7 +16,6 @@ const mh = require('multihashes')
 const defaultOptions = {
   flush: true,
   shardSplitThreshold: 1000,
-  cidVersion: 1,
   format: 'dag-pb',
   hashAlg: 'sha2-256'
 }
@@ -45,7 +44,7 @@ module.exports = (context) => {
     const updatedCid = await context.ipld.put(node, mc.DAG_PB, {
       cidVersion: cid.version,
       hashAlg: mh.names['sha2-256'],
-      hashOnly: !options.flush
+      onlyHash: !options.flush
     })
 
     const trail = await toTrail(context, mfsDirectory, options)

@@ -1,6 +1,19 @@
 'use strict'
 
-const Joi = require('@hapi/joi')
+const originalJoi = require('@hapi/joi')
+const Joi = originalJoi.extend({
+  name: 'octalNumber',
+  base: originalJoi.number().min(0),
+  coerce: (value, state, options) => {
+    const val = parseInt(value, 8)
+
+    if (isNaN(val) || val < 0) {
+      throw new Error('Invalid octal number')
+    }
+
+    return val
+  }
+})
 
 const mfsChmod = {
   method: 'POST',
@@ -29,7 +42,7 @@ const mfsChmod = {
       },
       query: Joi.object().keys({
         arg: Joi.string(),
-        mode: Joi.number().integer().min(0),
+        mode: Joi.octalNumber(),
         flush: Joi.boolean().default(true)
       })
     }

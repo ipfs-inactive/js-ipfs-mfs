@@ -20,5 +20,9 @@ const command = {
 
 module.exports = (yargs) => {
   return yargs
+    .config({
+      print,
+      getStdin: () => process.stdin
+    })
     .command(command)
 }

@@ -1,9 +1,9 @@
 /* eslint-env mocha */
 'use strict'
 
-const expect = require('./helpers/chai')
-const createMfs = require('./helpers/create-mfs')
-const streamToBuffer = require('./helpers/stream-to-buffer')
+const expect = require('../helpers/chai')
+const createMfs = require('../helpers/create-mfs')
+const streamToBuffer = require('../helpers/stream-to-buffer')
 const delay = require('delay')
 
 describe('touch', () => {

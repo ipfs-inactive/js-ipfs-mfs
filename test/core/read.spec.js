@@ -4,10 +4,10 @@
 const chai = require('chai')
 chai.use(require('dirty-chai'))
 const expect = chai.expect
-const createMfs = require('./helpers/create-mfs')
-const createShardedDirectory = require('./helpers/create-sharded-directory')
+const createMfs = require('../helpers/create-mfs')
+const createShardedDirectory = require('../helpers/create-sharded-directory')
 const crypto = require('crypto')
-const streamToBuffer = require('./helpers/stream-to-buffer')
+const streamToBuffer = require('../helpers/stream-to-buffer')
 
 describe('read', () => {
   let mfs

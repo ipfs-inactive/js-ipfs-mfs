@@ -109,7 +109,7 @@ const addToDirectory = async (context, options) => {
   const cid = await context.ipld.put(options.parent, format, {
     cidVersion: options.cidVersion,
     hashAlg,
-    hashOnly: !options.flush
+    onlyHash: !options.flush
   })
 
   return {

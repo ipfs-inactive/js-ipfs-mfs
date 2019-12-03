@@ -4,7 +4,6 @@ const pull = require('pull-stream/pull')
 const onEnd = require('pull-stream/sinks/on-end')
 const through = require('pull-stream/throughs/through')
 const {
-  print,
   asBoolean
 } = require('./utils')
 const {
@@ -45,18 +44,15 @@ module.exports = {
       getIpfs,
       long,
       sort,
-      cidBase
+      cidBase,
+      print
     } = argv
 
     argv.resolve((async () => {
       const ipfs = await getIpfs()
       return new Promise((resolve, reject) => {
         if (sort) {
-          ipfs.files.ls(path || FILE_SEPARATOR, {
-            long,
-            sort,
-            cidBase
-          })
+          ipfs.files.ls(path || FILE_SEPARATOR)
             .then(files => {
               // https://github.com/ipfs/go-ipfs/issues/5181
               if (sort) {
