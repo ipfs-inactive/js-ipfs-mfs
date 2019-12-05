@@ -5,10 +5,8 @@
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
   "browser": {
-    "@hapi/hapi": false,
     "@hapi/joi": "joi-browser",
-    "fs": false,
-    "yargs": false
+    "fs": false
   },
   "scripts": {
     "test": "aegir test",
