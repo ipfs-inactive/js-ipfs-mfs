@@ -200,7 +200,7 @@ describe('write', () => {
     expect(content).to.equal('hello world')
   })
 
-  it('should write to a file with a different strategy', async () => {
+  it('should write to a file with a specified strategy', async () => {
     await http({
       method: 'POST',
       url: `/api/v0/files/write?arg=${path}&strategy=flat`,
@@ -215,7 +215,7 @@ describe('write', () => {
     expect(content).to.equal('hello world')
   })
 
-  it('should write to a file with a different cid version', async () => {
+  it('should write to a file with a specified cid version', async () => {
     await http({
       method: 'POST',
       url: `/api/v0/files/write?arg=${path}&cidVersion=1`,
@@ -230,7 +230,7 @@ describe('write', () => {
     expect(content).to.equal('hello world')
   })
 
-  it('should update the mode a different codec', async () => {
+  it('should write to a file with a specified codec', async () => {
     await http({
       method: 'POST',
       url: `/api/v0/files/write?arg=${path}&format=dag-cbor`,
@@ -245,7 +245,7 @@ describe('write', () => {
     expect(content).to.equal('hello world')
   })
 
-  it('should update the mode a different hash algorithm', async () => {
+  it('should write to a file with a specified hash algorithm', async () => {
     await http({
       method: 'POST',
       url: `/api/v0/files/write?arg=${path}&hashAlg=sha3-256`,
@@ -260,7 +260,7 @@ describe('write', () => {
     expect(content).to.equal('hello world')
   })
 
-  it('should update the mode with a shard split threshold', async () => {
+  it('should write to a file with a specified shard split threshold', async () => {
     await http({
       method: 'POST',
       url: `/api/v0/files/write?arg=${path}&shardSplitThreshold=10`,
@@ -275,7 +275,7 @@ describe('write', () => {
     expect(content).to.equal('hello world')
   })
 
-  it('should update the mode a different mode', async () => {
+  it('shouldwrite to a file with a specified mode', async () => {
     const mode = '0577'
 
     await http({
@@ -294,7 +294,7 @@ describe('write', () => {
     expect(content).to.equal('hello world')
   })
 
-  it('should update the mode a different mtime', async () => {
+  it('should write to a file with a specified mtime', async () => {
     const mtime = 11
 
     await http({

@@ -72,7 +72,7 @@
     "err-code": "^2.0.0",
     "hamt-sharding": "~0.0.2",
     "interface-datastore": "^0.8.0",
-    "ipfs-multipart": "~0.2.0",
+    "ipfs-multipart": "ipfs/js-ipfs-multipart#support-unixfs-metadata",
     "ipfs-unixfs": "^0.2.0",
     "ipfs-unixfs-exporter": "~0.39.0",
     "ipfs-unixfs-importer": "^0.42.0",

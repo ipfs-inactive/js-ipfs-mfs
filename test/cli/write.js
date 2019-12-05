@@ -288,7 +288,7 @@ describe('write', () => {
     ])
   })
 
-  it('should write to a file with a different strategy', async () => {
+  it('should write to a file with a specified strategy', async () => {
     const path = '/foo'
 
     await cli(`files write --strategy trickle ${path}`, { ipfs, getStdin })
@@ -303,7 +303,7 @@ describe('write', () => {
     ])
   })
 
-  it('should write to a file with a different strategy (short option)', async () => {
+  it('should write to a file with a specified strategy (short option)', async () => {
     const path = '/foo'
 
     await cli(`files write -s trickle ${path}`, { ipfs, getStdin })
@@ -318,7 +318,7 @@ describe('write', () => {
     ])
   })
 
-  it('should write to a file with a different cid version', async () => {
+  it('should write to a file with a specified cid version', async () => {
     const path = '/foo'
 
     await cli(`files write --cid-version 5 ${path}`, { ipfs, getStdin })
@@ -333,7 +333,7 @@ describe('write', () => {
     ])
   })
 
-  it('should write to a file with a different cid version (shortish option)', async () => {
+  it('should write to a file with a specified cid version (shortish option)', async () => {
     const path = '/foo'
 
     await cli(`files write --cid-ver 5 ${path}`, { ipfs, getStdin })
@@ -348,7 +348,7 @@ describe('write', () => {
     ])
   })
 
-  it('should update the mode a different codec', async () => {
+  it('should write to a file with a specified codec', async () => {
     const path = '/foo'
 
     await cli(`files write --codec dag-foo ${path}`, { ipfs, getStdin })
@@ -363,7 +363,7 @@ describe('write', () => {
     ])
   })
 
-  it('should update the mode a different codec (short option)', async () => {
+  it('should write to a file with a specified codec (short option)', async () => {
     const path = '/foo'
 
     await cli(`files write -c dag-foo ${path}`, { ipfs, getStdin })
@@ -378,7 +378,7 @@ describe('write', () => {
     ])
   })
 
-  it('should update the mode a different hash algorithm', async () => {
+  it('should write to a file with a specified hash algorithm', async () => {
     const path = '/foo'
 
     await cli(`files write --hash-alg sha3-256 ${path}`, { ipfs, getStdin })
@@ -393,7 +393,7 @@ describe('write', () => {
     ])
   })
 
-  it('should update the mode a different hash algorithm (short option)', async () => {
+  it('should write to a file with a specified hash algorithm (short option)', async () => {
     const path = '/foo'
 
     await cli(`files write -h sha3-256 ${path}`, { ipfs, getStdin })
@@ -408,7 +408,7 @@ describe('write', () => {
     ])
   })
 
-  it('should update the mode with a shard split threshold', async () => {
+  it('should write to a file with a specified shard split threshold', async () => {
     const path = '/foo'
 
     await cli(`files write --shard-split-threshold 10 ${path}`, { ipfs, getStdin })
@@ -423,7 +423,7 @@ describe('write', () => {
     ])
   })
 
-  it('should update the mode a different mode', async () => {
+  it('should write to a file with a specified mode', async () => {
     const path = '/foo'
 
     await cli(`files write --mode 0557 ${path}`, { ipfs, getStdin })
@@ -438,7 +438,7 @@ describe('write', () => {
     ])
   })
 
-  it('should update the mode a different mtime', async () => {
+  it('should write to a file with a specified mtime', async () => {
     const path = '/foo'
 
     await cli(`files write --mtime 11 ${path}`, { ipfs, getStdin })
