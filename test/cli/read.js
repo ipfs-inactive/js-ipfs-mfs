@@ -5,8 +5,27 @@ const expect = require('../helpers/chai')
 const cli = require('../helpers/cli')
 const sinon = require('sinon')
 const values = require('pull-stream/sources/values')
+const isNode = require('detect-node')
 
-describe('cli read', () => {
+function defaultOptions (modification = {}) {
+  const options = {
+    offset: undefined,
+    length: undefined
+  }
+
+  Object.keys(modification).forEach(key => {
+    options[key] = modification[key]
+  })
+
+  return options
+}
+
+describe('read', () => {
+  if (!isNode) {
+    return
+  }
+
+  const path = '/foo'
   let ipfs
   let print
   let output
@@ -24,38 +43,32 @@ describe('cli read', () => {
   })
 
   it('should read a path', async () => {
-    const path = '/foo'
-
     await cli(`files read ${path}`, { ipfs, print })
 
     expect(ipfs.files.readPullStream.callCount).to.equal(1)
     expect(ipfs.files.readPullStream.getCall(0).args).to.deep.equal([
-      path, {
-        offset: undefined,
-        length: undefined
-      }
+      path,
+      defaultOptions()
     ])
     expect(output).to.equal('hello world')
   })
 
   it('should read a path with an offset', async () => {
-    const path = '/foo'
     const offset = 5
 
     await cli(`files read --offset ${offset} ${path}`, { ipfs, print })
 
     expect(ipfs.files.readPullStream.callCount).to.equal(1)
     expect(ipfs.files.readPullStream.getCall(0).args).to.deep.equal([
-      path, {
-        offset,
-        length: undefined
-      }
+      path,
+      defaultOptions({
+        offset
+      })
     ])
     expect(output).to.equal('hello world')
   })
 
   it('should read a path with an offset (short option)', async () => {
-    const path = '/foo'
     const offset = 5
 
     await cli(`files read -o ${offset} ${path}`, { ipfs, print })
@@ -70,34 +83,32 @@ describe('cli read', () => {
     expect(output).to.equal('hello world')
   })
 
-  it('should read a path with an length', async () => {
-    const path = '/foo'
+  it('should read a path with a length', async () => {
     const length = 5
 
     await cli(`files read --length ${length} ${path}`, { ipfs, print })
 
     expect(ipfs.files.readPullStream.callCount).to.equal(1)
     expect(ipfs.files.readPullStream.getCall(0).args).to.deep.equal([
-      path, {
-        offset: undefined,
+      path,
+      defaultOptions({
         length
-      }
+      })
     ])
     expect(output).to.equal('hello world')
   })
 
-  it('should read a path with an length (short option)', async () => {
-    const path = '/foo'
+  it('should read a path with a length (short option)', async () => {
     const length = 5
 
     await cli(`files read -l ${length} ${path}`, { ipfs, print })
 
     expect(ipfs.files.readPullStream.callCount).to.equal(1)
     expect(ipfs.files.readPullStream.getCall(0).args).to.deep.equal([
-      path, {
-        offset: undefined,
+      path,
+      defaultOptions({
         length
-      }
+      })
     ])
     expect(output).to.equal('hello world')
   })

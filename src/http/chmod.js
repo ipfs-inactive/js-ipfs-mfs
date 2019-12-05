@@ -1,19 +1,6 @@
 'use strict'
 
-const originalJoi = require('@hapi/joi')
-const Joi = originalJoi.extend({
-  name: 'octalNumber',
-  base: originalJoi.number().min(0),
-  coerce: (value, state, options) => {
-    const val = parseInt(value, 8)
-
-    if (isNaN(val) || val < 0) {
-      throw new Error('Invalid octal number')
-    }
-
-    return val
-  }
-})
+const Joi = require('./utils/joi')
 
 const mfsChmod = {
   method: 'POST',
@@ -24,12 +11,20 @@ const mfsChmod = {
     } = request.server.app
     const {
       arg,
+      mode,
+      recursive,
+      codec,
+      hashAlg,
       flush,
-      mode
+      shardSplitThreshold
     } = request.query
 
     await ipfs.files.chmod(arg, mode, {
-      flush
+      recursive,
+      format: codec,
+      hashAlg,
+      flush,
+      shardSplitThreshold
     })
 
     return h.response()
@@ -43,7 +38,11 @@ const mfsChmod = {
       query: Joi.object().keys({
         arg: Joi.string(),
         mode: Joi.octalNumber(),
-        flush: Joi.boolean().default(true)
+        recursive: Joi.boolean().default(false),
+        flush: Joi.boolean().default(true),
+        codec: Joi.string().default('dag-pb'),
+        hashAlg: Joi.string().default('sha2-256'),
+        shardSplitThreshold: Joi.number().integer().min(0).default(1000)
       })
     }
   }

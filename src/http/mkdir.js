@@ -1,6 +1,6 @@
 'use strict'
 
-const Joi = require('@hapi/joi')
+const Joi = require('./utils/joi')
 
 const mfsMkdir = {
   method: 'POST',
@@ -11,6 +11,8 @@ const mfsMkdir = {
     } = request.server.app
     const {
       arg,
+      mode,
+      mtime,
       parents,
       format,
       hashAlg,
@@ -20,6 +22,8 @@ const mfsMkdir = {
     } = request.query
 
     await ipfs.files.mkdir(arg, {
+      mode,
+      mtime,
       parents,
       format,
       hashAlg,
@@ -38,6 +42,8 @@ const mfsMkdir = {
       },
       query: Joi.object().keys({
         arg: Joi.string().required(),
+        mode: Joi.octalNumber(),
+        mtime: Joi.number().integer(),
         parents: Joi.boolean().default(false),
         format: Joi.string().valid([
           'dag-pb',
@@ -48,7 +54,8 @@ const mfsMkdir = {
           0,
           1
         ]).default(0),
-        flush: Joi.boolean().default(true)
+        flush: Joi.boolean().default(true),
+        shardSplitThreshold: Joi.number().integer().min(0).default(1000)
       })
         .rename('p', 'parents', {
           override: true,

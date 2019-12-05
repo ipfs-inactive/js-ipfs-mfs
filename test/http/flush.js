@@ -2,10 +2,11 @@
 'use strict'
 
 const expect = require('../helpers/chai')
-const cli = require('../helpers/cli')
+const http = require('../helpers/http')
 const sinon = require('sinon')
 
-describe('cli flush', () => {
+describe('flush', () => () => {
+  const path = '/foo'
   let ipfs
 
   beforeEach(() => {
@@ -17,9 +18,10 @@ describe('cli flush', () => {
   })
 
   it('should flush a path', async () => {
-    const path = '/foo'
-
-    await cli(`files flush ${path}`, { ipfs })
+    await http({
+      method: 'POST',
+      url: `/api/v0/files/flush?arg=${path}`
+    }, { ipfs })
 
     expect(ipfs.files.flush.callCount).to.equal(1)
     expect(ipfs.files.flush.getCall(0).args).to.deep.equal([
@@ -29,7 +31,10 @@ describe('cli flush', () => {
   })
 
   it('should flush without a path', async () => {
-    await cli('files flush', { ipfs })
+    await http({
+      method: 'POST',
+      url: '/api/v0/files/flush'
+    }, { ipfs })
 
     expect(ipfs.files.flush.callCount).to.equal(1)
     expect(ipfs.files.flush.getCall(0).args).to.deep.equal([

@@ -5,8 +5,10 @@
   "leadMaintainer": "Alex Potsides <alex.potsides@protocol.ai>",
   "main": "src/index.js",
   "browser": {
+    "@hapi/hapi": false,
+    "@hapi/joi": "joi-browser",
     "fs": false,
-    "@hapi/joi": "joi-browser"
+    "yargs": false
   },
   "scripts": {
     "test": "aegir test",
@@ -14,14 +16,14 @@
     "test:cli": "aegir test -t node -f test/cli/**/*.js",
     "test:core": "aegir test -t node -f test/core/**/*.js",
     "test:http": "aegir test -t node -f test/http/**/*.js",
-    "test:browser": "aegir test -t browser -f test/core/**/*.js",
-    "test:webworker": "aegir test -t webworker -f test/core/**/*.js",
+    "test:browser": "aegir test -t browser",
+    "test:webworker": "aegir test -t webworker",
     "build": "aegir build",
     "lint": "aegir lint",
     "release": "aegir release",
     "release-minor": "aegir release --type minor",
     "release-major": "aegir release --type major",
-    "coverage": "aegir coverage",
+    "coverage": "nyc --reporter=text --reporter=lcov npm run test:node",
     "dep-check": "aegir dep-check"
   },
   "repository": {
@@ -41,6 +43,7 @@
   },
   "homepage": "https://github.com/ipfs/js-ipfs-mfs#readme",
   "devDependencies": {
+    "@hapi/hapi": "^18.4.0",
     "aegir": "^20.0.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
@@ -48,12 +51,15 @@
     "detect-node": "^2.0.4",
     "detect-webworker": "^1.0.0",
     "dirty-chai": "^2.0.1",
+    "form-data": "^3.0.0",
     "ipfs-block-service": "~0.16.0",
     "ipfs-repo": "^0.30.1",
     "ipld": "~0.25.0",
     "it-all": "^1.0.1",
     "memdown": "^5.1.0",
+    "nyc": "^14.1.1",
     "sinon": "^7.5.0",
+    "stream-to-promise": "^2.2.0",
     "temp-write": "^4.0.0",
     "yargs": "^15.0.2",
     "yargs-promise": "^1.1.0"

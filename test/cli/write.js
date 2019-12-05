@@ -4,6 +4,7 @@
 const expect = require('../helpers/chai')
 const cli = require('../helpers/cli')
 const sinon = require('sinon')
+const isNode = require('detect-node')
 
 function defaultOptions (modification = {}) {
   const options = {
@@ -32,7 +33,11 @@ function defaultOptions (modification = {}) {
   return options
 }
 
-describe('cli write', () => {
+describe('write', () => {
+  if (!isNode) {
+    return
+  }
+
   const stdin = 'stdin'
   const getStdin = () => stdin
   let ipfs
@@ -148,7 +153,7 @@ describe('cli write', () => {
     ])
   })
 
-  it('should write to a file with an length', async () => {
+  it('should write to a file with a length', async () => {
     const path = '/foo'
 
     await cli(`files write --length 10 ${path}`, { ipfs, getStdin })

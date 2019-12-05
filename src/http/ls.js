@@ -10,7 +10,9 @@ const mapEntry = (entry) => {
     Name: entry.name,
     Type: entry.type,
     Size: entry.size,
-    Hash: entry.hash
+    Hash: entry.hash,
+    Mode: entry.mode,
+    Mtime: entry.mtime
   }
 }
 

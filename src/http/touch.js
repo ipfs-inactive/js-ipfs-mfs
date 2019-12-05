@@ -14,13 +14,17 @@ const mfsTouch = {
       flush,
       shardSplitThreshold,
       cidVersion,
+      format,
+      hashAlg,
       mtime
     } = request.query
 
     await ipfs.files.touch(arg, mtime, {
       flush,
       shardSplitThreshold,
-      cidVersion
+      cidVersion,
+      format,
+      hashAlg
     })
 
     return h.response()
@@ -32,14 +36,19 @@ const mfsTouch = {
         stripUnknown: true
       },
       query: Joi.object().keys({
-        arg: Joi.array().items(Joi.string()).min(2),
+        arg: Joi.string().required(),
         mtime: Joi.number().integer().min(0),
-        flush: Joi.boolean().default(true),
-        shardSplitThreshold: Joi.number().integer().min(0).default(1000),
+        format: Joi.string().valid([
+          'dag-pb',
+          'dag-cbor'
+        ]).default('dag-pb'),
+        hashAlg: Joi.string().default('sha2-256'),
         cidVersion: Joi.number().integer().valid([
           0,
           1
-        ]).default(0)
+        ]).default(0),
+        flush: Joi.boolean().default(true),
+        shardSplitThreshold: Joi.number().integer().min(0).default(1000)
       })
     }
   }

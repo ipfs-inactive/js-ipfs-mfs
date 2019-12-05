@@ -5,8 +5,13 @@ const expect = require('../helpers/chai')
 const cli = require('../helpers/cli')
 const sinon = require('sinon')
 const values = require('pull-stream/sources/values')
+const isNode = require('detect-node')
 
-describe('cli ls', () => {
+describe('ls', () => {
+  if (!isNode) {
+    return
+  }
+
   let ipfs
   let print
   let output
