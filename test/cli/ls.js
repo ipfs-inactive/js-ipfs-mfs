@@ -4,7 +4,6 @@
 const expect = require('../helpers/chai')
 const cli = require('../helpers/cli')
 const sinon = require('sinon')
-const values = require('pull-stream/sources/values')
 const isNode = require('detect-node')
 
 describe('ls', () => {
@@ -133,11 +132,11 @@ describe('ls', () => {
       mtime: 'file-mtime'
     }]
 
-    ipfs.files.lsPullStream = sinon.stub().returns(values(files))
+    ipfs.files.ls = sinon.stub().returns(files)
 
     await cli('files ls --sort false /foo', { ipfs, print })
 
-    expect(ipfs.files.lsPullStream.callCount).to.equal(1)
+    expect(ipfs.files.ls.callCount).to.equal(1)
     expect(output).to.include(files[0].name)
   })
 
@@ -150,11 +149,11 @@ describe('ls', () => {
       mtime: 'file-mtime'
     }]
 
-    ipfs.files.lsPullStream = sinon.stub().returns(values(files))
+    ipfs.files.ls = sinon.stub().returns(files)
 
     await cli('files ls -s false /foo', { ipfs, print })
 
-    expect(ipfs.files.lsPullStream.callCount).to.equal(1)
+    expect(ipfs.files.ls.callCount).to.equal(1)
     expect(output).to.include(files[0].name)
   })
 
@@ -167,11 +166,11 @@ describe('ls', () => {
       mtime: 'file-mtime'
     }]
 
-    ipfs.files.lsPullStream = sinon.stub().returns(values(files))
+    ipfs.files.ls = sinon.stub().returns(files)
 
     await cli('files ls --long --sort false /foo', { ipfs, print })
 
-    expect(ipfs.files.lsPullStream.callCount).to.equal(1)
+    expect(ipfs.files.ls.callCount).to.equal(1)
     expect(output).to.include(files[0].hash)
     expect(output).to.include(files[0].name)
     expect(output).to.include(files[0].size)
@@ -186,11 +185,11 @@ describe('ls', () => {
       mtime: 'file-mtime'
     }]
 
-    ipfs.files.lsPullStream = sinon.stub().returns(values(files))
+    ipfs.files.ls = sinon.stub().returns(files)
 
     await cli('files ls -l -s false /foo', { ipfs, print })
 
-    expect(ipfs.files.lsPullStream.callCount).to.equal(1)
+    expect(ipfs.files.ls.callCount).to.equal(1)
     expect(output).to.include(files[0].hash)
     expect(output).to.include(files[0].name)
     expect(output).to.include(files[0].size)
