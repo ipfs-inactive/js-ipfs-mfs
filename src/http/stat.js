@@ -20,15 +20,14 @@ const mfsStat = {
     const stats = await ipfs.files.stat(arg, {
       hash,
       size,
-      withLocal,
-      cidBase
+      withLocal
     })
 
     return h.response({
       Type: stats.type,
       Blocks: stats.blocks,
       Size: stats.size,
-      Hash: stats.hash,
+      Hash: stats.cid.toString(cidBase),
       CumulativeSize: stats.cumulativeSize,
       WithLocality: stats.withLocality,
       Local: stats.local,
