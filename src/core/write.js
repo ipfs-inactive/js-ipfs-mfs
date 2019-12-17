@@ -254,7 +254,7 @@ const asyncZeroes = (count, chunkSize = MAX_CHUNK_SIZE) => {
   return limitAsyncStreamBytes(stream, count)
 }
 
-const catAsyncIterators = async function * (sources) {
+const catAsyncIterators = async function * (sources) { // eslint-disable-line require-await
   for (let i = 0; i < sources.length; i++) {
     yield * sources[i]()
   }
