@@ -18,7 +18,7 @@ describe('touch', () => {
 
     await mfs.write(path, Buffer.from('Hello world'), {
       create: true,
-      mtime: parseInt(new Date() / 1000)
+      mtime: new Date()
     })
     const originalMtime = (await mfs.stat(path)).mtime
     await delay(1000)
@@ -27,14 +27,14 @@ describe('touch', () => {
     })
 
     const updatedMtime = (await mfs.stat(path)).mtime
-    expect(updatedMtime).to.be.greaterThan(originalMtime)
+    expect(updatedMtime.secs).to.be.greaterThan(originalMtime.secs)
   })
 
   it('should update the mtime for a directory', async () => {
     const path = `/foo-${Date.now()}`
 
     await mfs.mkdir(path, {
-      mtime: parseInt(Date.now() / 1000)
+      mtime: new Date()
     })
     const originalMtime = (await mfs.stat(path)).mtime
     await delay(1000)
@@ -43,14 +43,14 @@ describe('touch', () => {
     })
 
     const updatedMtime = (await mfs.stat(path)).mtime
-    expect(updatedMtime).to.be.greaterThan(originalMtime)
+    expect(updatedMtime.secs).to.be.greaterThan(originalMtime.secs)
   })
 
   it('should update the mtime for a hamt-sharded-directory', async () => {
     const path = `/foo-${Date.now()}`
 
     await mfs.mkdir(path, {
-      mtime: parseInt(Date.now() / 1000)
+      mtime: new Date()
     })
     await mfs.write(`${path}/foo.txt`, Buffer.from('Hello world'), {
       create: true,
@@ -63,7 +63,7 @@ describe('touch', () => {
     })
 
     const updatedMtime = (await mfs.stat(path)).mtime
-    expect(updatedMtime).to.be.greaterThan(originalMtime)
+    expect(updatedMtime.secs).to.be.greaterThan(originalMtime.secs)
   })
 
   it('should create an empty file', async () => {

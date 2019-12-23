@@ -202,7 +202,7 @@ describe('mkdir', () => {
     expect(ipfs.files.mkdir.getCall(0).args).to.deep.equal([
       path,
       defaultOptions({
-        mtime: 5
+        mtime: new Date(5000)
       })
     ])
   })

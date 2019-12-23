@@ -448,7 +448,7 @@ describe('write', () => {
       path,
       stdin,
       defaultOptions({
-        mtime: 11
+        mtime: new Date(11000)
       })
     ])
   })

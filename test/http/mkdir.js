@@ -150,7 +150,7 @@ describe('mkdir', () => {
     expect(ipfs.files.mkdir.getCall(0).args).to.deep.equal([
       path,
       defaultOptions({
-        mode: parseInt(mode, 8)
+        mode: mode
       })
     ])
   })
@@ -165,7 +165,9 @@ describe('mkdir', () => {
     expect(ipfs.files.mkdir.getCall(0).args).to.deep.equal([
       path,
       defaultOptions({
-        mtime: 5
+        mtime: {
+          secs: 5
+        }
       })
     ])
   })

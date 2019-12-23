@@ -43,7 +43,7 @@ describe('chmod', () => {
     expect(ipfs.files.chmod.callCount).to.equal(1)
     expect(ipfs.files.chmod.getCall(0).args).to.deep.equal([
       path,
-      parseInt(mode, 8),
+      mode,
       defaultOptions()
     ])
   })
@@ -57,7 +57,7 @@ describe('chmod', () => {
     expect(ipfs.files.chmod.callCount).to.equal(1)
     expect(ipfs.files.chmod.getCall(0).args).to.deep.equal([
       path,
-      parseInt(mode, 8),
+      mode,
       defaultOptions({
         recursive: true
       })
@@ -73,7 +73,7 @@ describe('chmod', () => {
     expect(ipfs.files.chmod.callCount).to.equal(1)
     expect(ipfs.files.chmod.getCall(0).args).to.deep.equal([
       path,
-      parseInt(mode, 8),
+      mode,
       defaultOptions({
         flush: false
       })
@@ -89,7 +89,7 @@ describe('chmod', () => {
     expect(ipfs.files.chmod.callCount).to.equal(1)
     expect(ipfs.files.chmod.getCall(0).args).to.deep.equal([
       path,
-      parseInt(mode, 8),
+      mode,
       defaultOptions({
         format: 'dag-foo'
       })
@@ -105,7 +105,7 @@ describe('chmod', () => {
     expect(ipfs.files.chmod.callCount).to.equal(1)
     expect(ipfs.files.chmod.getCall(0).args).to.deep.equal([
       path,
-      parseInt(mode, 8),
+      mode,
       defaultOptions({
         hashAlg: 'sha3-256'
       })
@@ -121,7 +121,7 @@ describe('chmod', () => {
     expect(ipfs.files.chmod.callCount).to.equal(1)
     expect(ipfs.files.chmod.getCall(0).args).to.deep.equal([
       path,
-      parseInt(mode, 8),
+      mode,
       defaultOptions({
         shardSplitThreshold: 10
       })

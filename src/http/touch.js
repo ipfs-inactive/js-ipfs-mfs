@@ -1,6 +1,7 @@
 'use strict'
 
 const Joi = require('@hapi/joi')
+const parseMtime = require('./utils/parse-mtime')
 
 const mfsTouch = {
   method: 'POST',
@@ -16,10 +17,12 @@ const mfsTouch = {
       cidVersion,
       format,
       hashAlg,
-      mtime
+      mtime,
+      mtimeNsecs
     } = request.query
 
-    await ipfs.files.touch(arg, mtime, {
+    await ipfs.files.touch(arg, {
+      mtime: parseMtime(mtime, mtimeNsecs),
       flush,
       shardSplitThreshold,
       cidVersion,
@@ -37,7 +40,8 @@ const mfsTouch = {
       },
       query: Joi.object().keys({
         arg: Joi.string().required(),
-        mtime: Joi.number().integer().min(0),
+        mtime: Joi.number().integer(),
+        mtimeNsecs: Joi.number().integer().min(0),
         format: Joi.string().valid([
           'dag-pb',
           'dag-cbor'

@@ -2,7 +2,8 @@
 
 const {
   asBoolean,
-  asOctal
+  asOctal,
+  asDateFromSeconds
 } = require('./utils')
 
 module.exports = {
@@ -94,7 +95,8 @@ module.exports = {
     },
     mtime: {
       alias: 'm',
-      type: 'number',
+      type: 'date',
+      coerce: asDateFromSeconds,
       describe: 'Time to use as the new modification time'
     }
   },

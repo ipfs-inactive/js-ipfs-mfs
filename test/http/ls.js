@@ -25,7 +25,12 @@ describe('ls', () => {
     name: 'file-name',
     type: 'file-type',
     size: 'file-size',
-    hash: 'file-hash'
+    hash: 'file-hash',
+    mode: 'file-mode',
+    mtime: {
+      secs: 'file-mtime-secs',
+      nsecs: 'file-mtime-nsecs'
+    }
   }
   let ipfs
 
@@ -77,7 +82,10 @@ describe('ls', () => {
       size: 'file-size',
       hash: 'file-hash',
       mode: 'file-mode',
-      mtime: 'file-mtime'
+      mtime: {
+        secs: 'file-mtime-secs',
+        nsecs: 'file-mtime-nsecs'
+      }
     }
     ipfs.files.ls = sinon.stub().resolves([file])
 
@@ -99,7 +107,8 @@ describe('ls', () => {
     expect(response).to.have.nested.property('result.Entries[0].Size', file.size)
     expect(response).to.have.nested.property('result.Entries[0].Hash', file.hash)
     expect(response).to.have.nested.property('result.Entries[0].Mode', file.mode)
-    expect(response).to.have.nested.property('result.Entries[0].Mtime', file.mtime)
+    expect(response).to.have.nested.property('result.Entries[0].Mtime', file.mtime.secs)
+    expect(response).to.have.nested.property('result.Entries[0].MtimeNsecs', file.mtime.nsecs)
   })
 
   it('should stream a path', async () => {
@@ -128,7 +137,10 @@ describe('ls', () => {
       size: 'file-size',
       hash: 'file-hash',
       mode: 'file-mode',
-      mtime: 'file-mtime'
+      mtime: {
+        secs: 'file-mtime-secs',
+        nsecs: 'file-mtime-nsecs'
+      }
     }
     ipfs.files.ls = sinon.stub().resolves([file])
 
@@ -144,12 +156,14 @@ describe('ls', () => {
         long: true
       })
     ])
+
     expect(response).to.have.nested.property('result.Entries.length', 1)
     expect(response).to.have.nested.property('result.Entries[0].Name', file.name)
     expect(response).to.have.nested.property('result.Entries[0].Type', file.type)
     expect(response).to.have.nested.property('result.Entries[0].Size', file.size)
     expect(response).to.have.nested.property('result.Entries[0].Hash', file.hash)
     expect(response).to.have.nested.property('result.Entries[0].Mode', file.mode)
-    expect(response).to.have.nested.property('result.Entries[0].Mtime', file.mtime)
+    expect(response).to.have.nested.property('result.Entries[0].Mtime', file.mtime.secs)
+    expect(response).to.have.nested.property('result.Entries[0].MtimeNsecs', file.mtime.nsecs)
   })
 })

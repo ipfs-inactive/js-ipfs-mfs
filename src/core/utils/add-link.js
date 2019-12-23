@@ -1,7 +1,8 @@
 'use strict'
 
 const {
-  DAGLink
+  DAGLink,
+  DAGNode
 } = require('ipld-dag-pb')
 const CID = require('cids')
 const log = require('debug')('ipfs:mfs:core:utils:add-link')
@@ -93,14 +94,10 @@ const addToDirectory = async (context, options) => {
   options.parent.rmLink(options.name)
   options.parent.addLink(new DAGLink(options.name, options.size, options.cid))
 
+  // Update mtime
   const node = UnixFS.unmarshal(options.parent.Data)
-
-  // Update mtime if set previously
-  if (node.mtime) {
-    node.mtime = parseInt(Date.now() / 1000)
-
-    options.parent.Data = UnixFS.unmarshal(node)
-  }
+  node.mtime = new Date()
+  options.parent = new DAGNode(node.marshal(), options.parent.Links)
 
   const format = mc[options.format.toUpperCase().replace(/-/g, '_')]
   const hashAlg = mh.names[options.hashAlg]
@@ -163,11 +160,7 @@ const addFileToShardedDirectory = async (context, options) => {
     mode: node.mode
   }, options)
   shard._bucket = rootBucket
-
-  // Update mtime if set previously
-  if (node.mtime) {
-    shard.mtime = parseInt(Date.now() / 1000)
-  }
+  shard.mtime = new Date()
 
   // load subshards until the bucket & position no longer changes
   const position = await rootBucket._findNewBucketAndPos(file.name)

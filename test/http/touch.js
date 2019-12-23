@@ -7,6 +7,7 @@ const sinon = require('sinon')
 
 function defaultOptions (modification = {}) {
   const options = {
+    mtime: null,
     cidVersion: 0,
     format: 'dag-pb',
     hashAlg: 'sha2-256',
@@ -23,7 +24,7 @@ function defaultOptions (modification = {}) {
 
 describe('touch', () => {
   const path = '/foo'
-  const mtime = parseInt(Date.now() / 1000)
+  const mtime = new Date(1000000)
   let ipfs
 
   beforeEach(() => {
@@ -37,28 +38,33 @@ describe('touch', () => {
   it('should update the mtime for a file', async () => {
     await http({
       method: 'POST',
-      url: `/api/v0/files/touch?arg=${path}&mtime=${mtime}`
+      url: `/api/v0/files/touch?arg=${path}&mtime=${mtime.getTime() / 1000}`
     }, { ipfs })
 
     expect(ipfs.files.touch.callCount).to.equal(1)
     expect(ipfs.files.touch.getCall(0).args).to.deep.equal([
       path,
-      mtime,
-      defaultOptions()
+      defaultOptions({
+        mtime: {
+          secs: 1000
+        }
+      })
     ])
   })
 
   it('should update the mtime without flushing', async () => {
     await http({
       method: 'POST',
-      url: `/api/v0/files/touch?arg=${path}&mtime=${mtime}&flush=false`
+      url: `/api/v0/files/touch?arg=${path}&mtime=${mtime.getTime() / 1000}&flush=false`
     }, { ipfs })
 
     expect(ipfs.files.touch.callCount).to.equal(1)
     expect(ipfs.files.touch.getCall(0).args).to.deep.equal([
       path,
-      mtime,
       defaultOptions({
+        mtime: {
+          secs: 1000
+        },
         flush: false
       })
     ])
@@ -67,14 +73,16 @@ describe('touch', () => {
   it('should update the mtime with a different codec', async () => {
     await http({
       method: 'POST',
-      url: `/api/v0/files/touch?arg=${path}&mtime=${mtime}&format=dag-pb`
+      url: `/api/v0/files/touch?arg=${path}&mtime=${mtime.getTime() / 1000}&format=dag-pb`
     }, { ipfs })
 
     expect(ipfs.files.touch.callCount).to.equal(1)
     expect(ipfs.files.touch.getCall(0).args).to.deep.equal([
       path,
-      mtime,
       defaultOptions({
+        mtime: {
+          secs: 1000
+        },
         format: 'dag-pb'
       })
     ])
@@ -83,14 +91,16 @@ describe('touch', () => {
   it('should update the mtime with a different hash algorithm', async () => {
     await http({
       method: 'POST',
-      url: `/api/v0/files/touch?arg=${path}&mtime=${mtime}&hashAlg=sha3-256`
+      url: `/api/v0/files/touch?arg=${path}&mtime=${mtime.getTime() / 1000}&hashAlg=sha3-256`
     }, { ipfs })
 
     expect(ipfs.files.touch.callCount).to.equal(1)
     expect(ipfs.files.touch.getCall(0).args).to.deep.equal([
       path,
-      mtime,
       defaultOptions({
+        mtime: {
+          secs: 1000
+        },
         hashAlg: 'sha3-256'
       })
     ])
@@ -99,14 +109,35 @@ describe('touch', () => {
   it('should update the mtime with a shard split threshold', async () => {
     await http({
       method: 'POST',
-      url: `/api/v0/files/touch?arg=${path}&mtime=${mtime}&shardSplitThreshold=10`
+      url: `/api/v0/files/touch?arg=${path}&mtime=${mtime.getTime() / 1000}&shardSplitThreshold=10`
     }, { ipfs })
 
     expect(ipfs.files.touch.callCount).to.equal(1)
     expect(ipfs.files.touch.getCall(0).args).to.deep.equal([
       path,
-      mtime,
       defaultOptions({
+        mtime: {
+          secs: 1000
+        },
+        shardSplitThreshold: 10
+      })
+    ])
+  })
+
+  it('should update the mtime with nanoseconds with a shard split threshold', async () => {
+    await http({
+      method: 'POST',
+      url: `/api/v0/files/touch?arg=${path}&mtime=${mtime.getTime() / 1000}&mtimeNsecs=100&shardSplitThreshold=10`
+    }, { ipfs })
+
+    expect(ipfs.files.touch.callCount).to.equal(1)
+    expect(ipfs.files.touch.getCall(0).args).to.deep.equal([
+      path,
+      defaultOptions({
+        mtime: {
+          secs: 1000,
+          nsecs: 100
+        },
         shardSplitThreshold: 10
       })
     ])

@@ -14,18 +14,15 @@ const last = require('it-last')
 const updateHamtDirectory = async (context, links, bucket, options) => {
   // update parent with new bit field
   const data = Buffer.from(bucket._children.bitField().reverse())
-  const dir = new UnixFS('hamt-sharded-directory', data)
-  dir.fanout = bucket.tableSize()
-  dir.hashType = DirSharded.hashFn.code
-
   const node = UnixFS.unmarshal(options.parent.Data)
-
-  // Update mtime if set previously
-  if (node.mtime) {
-    node.mtime = parseInt(Date.now() / 1000)
-
-    dir.Data = UnixFS.unmarshal(node)
-  }
+  const dir = new UnixFS({
+    type: 'hamt-sharded-directory',
+    data,
+    fanout: bucket.tableSize(),
+    hashType: DirSharded.hashFn.code,
+    mode: node.mode,
+    mtime: node.mtime
+  })
 
   const format = mc[options.format.toUpperCase().replace(/-/g, '_')]
   const hashAlg = mh.names[options.hashAlg]

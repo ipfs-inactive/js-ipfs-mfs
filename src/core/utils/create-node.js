@@ -10,15 +10,11 @@ const mh = require('multihashes')
 const createNode = async (context, type, options) => {
   const format = mc[options.format.toUpperCase().replace(/-/g, '_')]
   const hashAlg = mh.names[options.hashAlg]
-  const metadata = new UnixFS(type)
-
-  if (options.mode !== undefined) {
-    metadata.mode = options.mode
-  }
-
-  if (options.mtime !== undefined) {
-    metadata.mtime = options.mtime
-  }
+  const metadata = new UnixFS({
+    type,
+    mode: options.mode,
+    mtime: options.mtime
+  })
 
   const node = new DAGNode(metadata.marshal())
   const cid = await context.ipld.put(node, format, {

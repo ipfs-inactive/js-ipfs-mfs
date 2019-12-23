@@ -275,7 +275,7 @@ describe('write', () => {
     expect(content).to.equal('hello world')
   })
 
-  it('shouldwrite to a file with a specified mode', async () => {
+  it('should write to a file with a specified mode', async () => {
     const mode = '0577'
 
     await http({
@@ -308,7 +308,9 @@ describe('write', () => {
     expect(ipfs.files.write.callCount).to.equal(1)
     expect(ipfs.files.write.getCall(0)).to.have.nested.property('args[0]', path)
     expect(ipfs.files.write.getCall(0)).to.have.nested.deep.property('args[2]', defaultOptions({
-      mtime
+      mtime: {
+        secs: 11
+      }
     }))
     expect(content).to.equal('hello world')
   })

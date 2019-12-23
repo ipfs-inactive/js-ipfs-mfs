@@ -1,9 +1,5 @@
 'use strict'
 
-const {
-  print
-} = require('./utils')
-
 const command = {
   command: 'files <command>',
 
@@ -14,15 +10,11 @@ const command = {
   },
 
   handler (argv) {
-    print('Type `jsipfs files --help` for more instructions')
+    argv.print('Type `jsipfs files --help` for more instructions')
   }
 }
 
 module.exports = (yargs) => {
   return yargs
-    .config({
-      print,
-      getStdin: () => process.stdin
-    })
     .command(command)
 }

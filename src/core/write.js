@@ -175,12 +175,28 @@ const write = async (context, source, destination, options) => {
     }
   })
 
+  let mode
+
+  if (options.mode !== undefined && options.mode !== null) {
+    mode = options.mode
+  } else if (destination && destination.unixfs) {
+    mode = destination.unixfs.mode
+  }
+
+  let mtime
+
+  if (options.mtime !== undefined && options.mtine !== null) {
+    mtime = options.mtime
+  } else if (destination && destination.unixfs) {
+    mtime = destination.unixfs.mtime
+  }
+
   const result = await last(importer([{
     content: content,
 
     // persist mode & mtime if set previously
-    mode: (destination.unixfs && destination.unixfs.mode) || options.mode,
-    mtime: (destination.unixfs && destination.unixfs.mtime) ? parseInt(new Date() / 1000) : options.mtime
+    mode,
+    mtime
   }], context.ipld, {
     progress: options.progress,
     hashAlg: options.hashAlg,

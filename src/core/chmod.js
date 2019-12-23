@@ -20,6 +20,124 @@ const defaultOptions = {
   hashAlg: 'sha2-256'
 }
 
+function calculateModification (mode) {
+  let modification = 0
+
+  if (mode.includes('x')) {
+    modification += 1
+  }
+
+  if (mode.includes('w')) {
+    modification += 2
+  }
+
+  if (mode.includes('r')) {
+    modification += 4
+  }
+
+  return modification
+}
+
+function calculateUGO (references, modification) {
+  let ugo = 0
+
+  if (references.includes('u')) {
+    ugo += (modification << 6)
+  }
+
+  if (references.includes('g')) {
+    ugo += (modification << 3)
+  }
+
+  if (references.includes('o')) {
+    ugo += (modification)
+  }
+
+  return ugo
+}
+
+function calculateSpecial (references, mode, modification) {
+  if (mode.includes('t')) {
+    modification += parseInt('1000', 8)
+  }
+
+  if (mode.includes('s')) {
+    if (references.includes('u')) {
+      modification += parseInt('4000', 8)
+    }
+
+    if (references.includes('g')) {
+      modification += parseInt('2000', 8)
+    }
+  }
+
+  return modification
+}
+
+// https://en.wikipedia.org/wiki/Chmod#Symbolic_modes
+function parseSymbolicMode (input, originalMode) {
+  if (!originalMode) {
+    originalMode = 0
+  }
+
+  const match = input.match(/^(u?g?o?a?)(-?\+?=?)?(r?w?x?X?s?t?)$/)
+
+  if (!match) {
+    throw new Error(`Invalid file mode: ${input}`)
+  }
+
+  let [
+    _, // eslint-disable-line no-unused-vars
+    references,
+    operator,
+    mode
+  ] = match
+
+  if (references === 'a' || !references) {
+    references = 'ugo'
+  }
+
+  let modification = calculateModification(mode)
+  modification = calculateUGO(references, modification)
+  modification = calculateSpecial(references, mode, modification)
+
+  if (operator === '=') {
+    if (references.includes('u')) {
+      // blank u bits
+      originalMode = originalMode & parseInt('7077', 8)
+
+      // or them together
+      originalMode = originalMode | modification
+    }
+
+    if (references.includes('g')) {
+      // blank g bits
+      originalMode = originalMode & parseInt('7707', 8)
+
+      // or them together
+      originalMode = originalMode | modification
+    }
+
+    if (references.includes('o')) {
+      // blank o bits
+      originalMode = originalMode & parseInt('7770', 8)
+
+      // or them together
+      originalMode = originalMode | modification
+    }
+
+    return originalMode
+  }
+
+  if (operator === '+') {
+    return modification | originalMode
+  }
+
+  if (operator === '-') {
+    return modification ^ originalMode
+  }
+}
+
 module.exports = (context) => {
   return async function mfsChmod (path, mode, options) {
     options = applyDefaultOptions(options, defaultOptions)
@@ -38,6 +156,17 @@ module.exports = (context) => {
 
     let node = await context.ipld.get(cid)
     const metadata = UnixFS.unmarshal(node.Data)
+
+    if (typeof mode === 'string' || mode instanceof String) {
+      if (mode.match(/^\d+$/g)) {
+        mode = parseInt(mode, 8)
+      } else {
+        mode = mode.split(',').reduce((curr, acc) => {
+          return parseSymbolicMode(acc, curr)
+        }, metadata.mode)
+      }
+    }
+
     metadata.mode = mode
     node = new DAGNode(metadata.marshal(), node.Links)
 

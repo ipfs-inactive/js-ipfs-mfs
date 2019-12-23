@@ -25,14 +25,19 @@ const toOutput = (fsEntry) => {
     mtime = fsEntry.unixfs.mtime
   }
 
-  return {
+  const output = {
     cid: fsEntry.cid,
     name: fsEntry.name,
     type,
     size,
-    mode,
-    mtime
+    mode
   }
+
+  if (mtime !== undefined) {
+    output.mtime = mtime
+  }
+
+  return output
 }
 
 module.exports = (context) => {

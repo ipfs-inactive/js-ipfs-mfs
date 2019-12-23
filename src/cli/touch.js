@@ -1,7 +1,8 @@
 'use strict'
 
 const {
-  asBoolean
+  asBoolean,
+  asDateFromSeconds
 } = require('./utils')
 
 module.exports = {
@@ -12,8 +13,9 @@ module.exports = {
   builder: {
     mtime: {
       alias: 'm',
-      type: 'number',
-      default: parseInt(Date.now() / 1000),
+      type: 'date',
+      coerce: asDateFromSeconds,
+      default: Date.now(),
       describe: 'Time to use as the new modification time'
     },
     flush: {
@@ -63,7 +65,8 @@ module.exports = {
     argv.resolve((async () => {
       const ipfs = await getIpfs()
 
-      return ipfs.files.touch(path, mtime, {
+      return ipfs.files.touch(path, {
+        mtime,
         flush,
         cidVersion,
         format: codec,

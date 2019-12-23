@@ -14,6 +14,7 @@ const mc = require('multicodec')
 const mh = require('multihashes')
 
 const defaultOptions = {
+  mtime: undefined,
   flush: true,
   shardSplitThreshold: 1000,
   cidVersion: 1,
@@ -22,15 +23,12 @@ const defaultOptions = {
 }
 
 module.exports = (context) => {
-  return async function mfsTouch (path, mtime, options) {
-    if (!options && isNaN(mtime)) {
-      options = mtime
-      mtime = parseInt(Date.now() / 1000)
-    }
-
+  return async function mfsTouch (path, options) {
+    options = options || {}
     options = applyDefaultOptions(options, defaultOptions)
+    options.mtime = options.mtime || new Date()
 
-    log(`Touching ${path}`)
+    log(`Touching ${path} mtime: ${options.mtime}`)
 
     const {
       cid,
@@ -45,8 +43,10 @@ module.exports = (context) => {
     let cidVersion = options.cidVersion
 
     if (!exists) {
-      const metadata = new UnixFS('file')
-      metadata.mtime = mtime
+      const metadata = new UnixFS({
+        type: 'file',
+        mtime: options.mtime
+      })
       node = new DAGNode(metadata.marshal())
       updatedCid = await context.ipld.put(node, mc.DAG_PB, {
         cidVersion: options.cidVersion,
@@ -63,7 +63,7 @@ module.exports = (context) => {
       node = await context.ipld.get(cid)
 
       const metadata = UnixFS.unmarshal(node.Data)
-      metadata.mtime = mtime
+      metadata.mtime = options.mtime
 
       node = new DAGNode(metadata.marshal(), node.Links)
 

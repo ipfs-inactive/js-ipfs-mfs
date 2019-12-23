@@ -2,7 +2,8 @@
 
 const {
   asBoolean,
-  asOctal
+  asOctal,
+  asDateFromSeconds
 } = require('./utils')
 
 module.exports = {
@@ -54,9 +55,9 @@ module.exports = {
       describe: 'Mode to apply to the new directory'
     },
     mtime: {
-      type: 'number',
-      coerce: asOctal,
-      describe: 'Mtime to apply to the new directory'
+      type: 'date',
+      coerce: asDateFromSeconds,
+      describe: 'Mtime to apply to the new directory in seconds'
     }
   },
 

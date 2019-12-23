@@ -1,6 +1,6 @@
 'use strict'
 
-const Joi = require('./utils/joi')
+const Joi = require('@hapi/joi')
 
 const mfsChmod = {
   method: 'POST',
@@ -37,7 +37,7 @@ const mfsChmod = {
       },
       query: Joi.object().keys({
         arg: Joi.string(),
-        mode: Joi.octalNumber(),
+        mode: Joi.string(),
         recursive: Joi.boolean().default(false),
         flush: Joi.boolean().default(true),
         codec: Joi.string().default('dag-pb'),

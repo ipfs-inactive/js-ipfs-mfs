@@ -1,6 +1,7 @@
 'use strict'
 
-const Joi = require('./utils/joi')
+const Joi = require('@hapi/joi')
+const parseMtime = require('./utils/parse-mtime')
 
 const mfsMkdir = {
   method: 'POST',
@@ -13,6 +14,7 @@ const mfsMkdir = {
       arg,
       mode,
       mtime,
+      mtimeNsecs,
       parents,
       format,
       hashAlg,
@@ -23,7 +25,7 @@ const mfsMkdir = {
 
     await ipfs.files.mkdir(arg, {
       mode,
-      mtime,
+      mtime: parseMtime(mtime, mtimeNsecs),
       parents,
       format,
       hashAlg,
@@ -42,8 +44,9 @@ const mfsMkdir = {
       },
       query: Joi.object().keys({
         arg: Joi.string().required(),
-        mode: Joi.octalNumber(),
+        mode: Joi.string(),
         mtime: Joi.number().integer(),
+        mtimeNsecs: Joi.number().integer().min(0),
         parents: Joi.boolean().default(false),
         format: Joi.string().valid([
           'dag-pb',
