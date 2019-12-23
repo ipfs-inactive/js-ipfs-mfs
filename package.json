@@ -70,7 +70,7 @@
     "err-code": "^2.0.0",
     "hamt-sharding": "~0.0.2",
     "interface-datastore": "^0.8.0",
-    "ipfs-multipart": "^0.2.0",
+    "ipfs-multipart": "ipfs/js-ipfs-multipart#store-mtime-as-timespec",
     "ipfs-unixfs": "ipfs/js-ipfs-unixfs#store-mtime-as-timespec",
     "ipfs-unixfs-exporter": "~0.39.0",
     "ipfs-unixfs-importer": "ipfs/js-ipfs-unixfs-importer#mtime-passed-as-timespec",
