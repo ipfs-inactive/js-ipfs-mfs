@@ -44,7 +44,7 @@ const mfsLs = {
 
     if (stream) {
       const responseStream = await new Promise((resolve, reject) => {
-        const readableStream = toStream.readable(ipfs.files.ls(arg))
+        const readableStream = toStream.readable(ipfs.files.ls(arg), { objectMode: true })
 
         const passThrough = new PassThrough()
 
