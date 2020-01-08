@@ -18,24 +18,20 @@ module.exports = {
     }
   },
 
-  handler (argv) {
+  async handler (argv) {
     const {
       path,
-      getIpfs,
+      ipfs,
       print,
       offset,
       length
     } = argv
 
-    argv.resolve((async () => {
-      const ipfs = await getIpfs()
-
-      for await (const buffer of ipfs.files.read(path, {
-        offset,
-        length
-      })) {
-        print(buffer, false)
-      }
-    })())
+    for await (const buffer of ipfs.api.files.read(path, {
+      offset,
+      length
+    })) {
+      print(buffer, false)
+    }
   }
 }
