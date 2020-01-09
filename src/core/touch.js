@@ -17,7 +17,7 @@ const defaultOptions = {
   mtime: undefined,
   flush: true,
   shardSplitThreshold: 1000,
-  cidVersion: 1,
+  cidVersion: 0,
   format: 'dag-pb',
   hashAlg: 'sha2-256'
 }

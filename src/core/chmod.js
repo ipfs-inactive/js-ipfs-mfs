@@ -17,7 +17,9 @@ const defaultOptions = {
   flush: true,
   shardSplitThreshold: 1000,
   format: 'dag-pb',
-  hashAlg: 'sha2-256'
+  hashAlg: 'sha2-256',
+  cidVersion: 0,
+  recursive: false
 }
 
 function calculateModification (mode) {
