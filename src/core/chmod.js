@@ -12,6 +12,12 @@ const updateMfsRoot = require('./utils/update-mfs-root')
 const { DAGNode } = require('ipld-dag-pb')
 const mc = require('multicodec')
 const mh = require('multihashes')
+const pipe = require('it-pipe')
+const importer = require('ipfs-unixfs-importer')
+const exporter = require('ipfs-unixfs-exporter')
+const last = require('it-last')
+const cp = require('./cp')
+const rm = require('./rm')
 
 const defaultOptions = {
   flush: true,
@@ -21,10 +27,10 @@ const defaultOptions = {
   recursive: false
 }
 
-function calculateModification (mode) {
+function calculateModification (mode, originalMode, isDirectory) {
   let modification = 0
 
-  if (mode.includes('x')) {
+  if (mode.includes('x') || (mode.includes('X') && (isDirectory || (originalMode & 0o1 || originalMode & 0o10 || originalMode & 0o100)))) {
     modification += 1
   }
 
@@ -76,7 +82,7 @@ function calculateSpecial (references, mode, modification) {
 }
 
 // https://en.wikipedia.org/wiki/Chmod#Symbolic_modes
-function parseSymbolicMode (input, originalMode) {
+function parseSymbolicMode (input, originalMode, isDirectory) {
   if (!originalMode) {
     originalMode = 0
   }
@@ -98,7 +104,7 @@ function parseSymbolicMode (input, originalMode) {
     references = 'ugo'
   }
 
-  let modification = calculateModification(mode)
+  let modification = calculateModification(mode, originalMode, isDirectory)
   modification = calculateUGO(references, modification)
   modification = calculateSpecial(references, mode, modification)
 
@@ -139,6 +145,20 @@ function parseSymbolicMode (input, originalMode) {
   }
 }
 
+function calculateMode (mode, metadata) {
+  if (typeof mode === 'string' || mode instanceof String) {
+    if (mode.match(/^\d+$/g)) {
+      mode = parseInt(mode, 8)
+    } else {
+      mode = mode.split(',').reduce((curr, acc) => {
+        return parseSymbolicMode(acc, curr, metadata.isDirectory())
+      }, metadata.mode)
+    }
+  }
+
+  return mode
+}
+
 module.exports = (context) => {
   return async function mfsChmod (path, mode, options) {
     options = applyDefaultOptions(options, defaultOptions)
@@ -155,20 +175,38 @@ module.exports = (context) => {
       throw errCode(new Error(`${path} was not a UnixFS node`), 'ERR_NOT_UNIXFS')
     }
 
-    let node = await context.ipld.get(cid)
-    const metadata = UnixFS.unmarshal(node.Data)
+    if (options.recursive) {
+      // recursively export from root CID, change perms of each entry then reimport
+      // but do not reimport files, only manipulate dag-pb nodes
+      const root = await pipe(
+        async function * () {
+          for await (const entry of exporter.recursive(cid, context.ipld)) {
+            let node = await context.ipld.get(entry.cid)
+            entry.unixfs.mode = calculateMode(mode, entry.unixfs)
+            node = new DAGNode(entry.unixfs.marshal(), node.Links)
 
-    if (typeof mode === 'string' || mode instanceof String) {
-      if (mode.match(/^\d+$/g)) {
-        mode = parseInt(mode, 8)
-      } else {
-        mode = mode.split(',').reduce((curr, acc) => {
-          return parseSymbolicMode(acc, curr)
-        }, metadata.mode)
-      }
+            yield {
+              path: entry.path,
+              content: node
+            }
+          }
+        },
+        (source) => importer(source, context.ipld, options),
+        (nodes) => last(nodes)
+      )
+
+      // remove old path from mfs
+      await rm(context)(path, options)
+
+      // add newly created tree to mfs at path
+      await cp(context)(`/ipfs/${root.cid}`, path, options)
+
+      return
     }
 
-    metadata.mode = mode
+    let node = await context.ipld.get(cid)
+    const metadata = UnixFS.unmarshal(node.Data)
+    metadata.mode = calculateMode(mode, metadata)
     node = new DAGNode(metadata.marshal(), node.Links)
 
     const updatedCid = await context.ipld.put(node, mc.DAG_PB, {
