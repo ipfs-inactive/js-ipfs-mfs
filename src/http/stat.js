@@ -48,7 +48,7 @@ const mfsStat = {
         hash: Joi.boolean().default(false),
         size: Joi.boolean().default(false),
         withLocal: Joi.boolean().default(false),
-        cidBase: Joi.string().default('base58btc')
+        cidBase: Joi.string()
       })
     }
   }

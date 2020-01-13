@@ -31,7 +31,6 @@ module.exports = {
       describe: 'Sort entries by name'
     },
     'cid-base': {
-      default: 'base58btc',
       describe: 'CID base to use.'
     }
   },
@@ -50,7 +49,6 @@ module.exports = {
       const ipfs = await getIpfs()
 
       const printListing = file => {
-        console.log(file)
         if (long) {
           print(`${formatMode(file.mode, file.type === 1)}\t${formatMtime(file.mtime)}\t${file.name}\t${file.cid.toString(cidBase)}\t${file.size}`)
         } else {

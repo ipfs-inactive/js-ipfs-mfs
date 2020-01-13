@@ -5,6 +5,7 @@ const {
   PassThrough
 } = require('stream')
 const toStream = require('it-to-stream')
+const all = require('it-all')
 
 const mapEntry = (entry, options) => {
   options = options || {}
@@ -67,7 +68,7 @@ const mfsLs = {
       return h.response(responseStream).header('X-Stream-Output', '1')
     }
 
-    const files = await ipfs.files.ls(arg)
+    const files = await all(ipfs.files.ls(arg))
 
     return h.response({
       Entries: files.map(entry => mapEntry(entry, { cidBase, long }))
@@ -82,7 +83,7 @@ const mfsLs = {
       query: Joi.object().keys({
         arg: Joi.string().default('/'),
         long: Joi.boolean().default(false),
-        cidBase: Joi.string().default('base58btc'),
+        cidBase: Joi.string(),
         stream: Joi.boolean().default(false)
       })
         .rename('l', 'long', {
