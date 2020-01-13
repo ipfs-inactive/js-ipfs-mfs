@@ -18,6 +18,7 @@ const exporter = require('ipfs-unixfs-exporter')
 const last = require('it-last')
 const cp = require('./cp')
 const rm = require('./rm')
+const persist = require('ipfs-unixfs-importer/src/utils/persist')
 
 const defaultOptions = {
   flush: true,
@@ -191,7 +192,23 @@ module.exports = (context) => {
             }
           }
         },
-        (source) => importer(source, context.ipld, options),
+        (source) => importer(source, context.ipld, {
+          ...options,
+          dagBuilder: async function * (source, ipld, options) {
+            for await (const entry of source) {
+              yield async function () {
+                const cid = await persist(entry.content, ipld, options)
+
+                return {
+                  cid,
+                  path: entry.path,
+                  unixfs: UnixFS.unmarshal(entry.content.Data),
+                  node: entry.content
+                }
+              }
+            }
+          }
+        }),
         (nodes) => last(nodes)
       )
 
