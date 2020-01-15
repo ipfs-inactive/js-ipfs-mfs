@@ -269,4 +269,54 @@ describe('chmod', () => {
     // files with prior execute bit should now be user and group executable
     expect((await mfs.stat(bin)).mode).to.equal(0o754)
   })
+
+  it('should apply special execute permissions to sharded directories', async () => {
+    const path = `/foo-${Date.now()}`
+    const sub = `${path}/sub`
+    const file = `${path}/sub/foo.txt`
+    const bin = `${path}/sub/bar`
+
+    await mfs.mkdir(sub, {
+      parents: true,
+      shardSplitThreshold: 0
+    })
+    await mfs.touch(file, {
+      shardSplitThreshold: 0
+    })
+    await mfs.touch(bin, {
+      shardSplitThreshold: 0
+    })
+
+    await mfs.chmod(path, 0o644, {
+      recursive: true,
+      shardSplitThreshold: 0
+    })
+    await mfs.chmod(bin, 'u+x', {
+      recursive: true,
+      shardSplitThreshold: 0
+    })
+
+    expect((await mfs.stat(path)).mode).to.equal(0o644)
+    expect((await mfs.stat(sub)).mode).to.equal(0o644)
+    expect((await mfs.stat(file)).mode).to.equal(0o644)
+    expect((await mfs.stat(bin)).mode).to.equal(0o744)
+
+    await mfs.chmod(path, 'ug+X', {
+      recursive: true,
+      shardSplitThreshold: 0
+    })
+
+    // directories should be user and group executable
+    expect((await mfs.stat(path))).to.include({
+      type: 'hamt-sharded-directory',
+      mode: 0o754
+    })
+    expect((await mfs.stat(sub)).mode).to.equal(0o754)
+
+    // files without prior execute bit should be untouched
+    expect((await mfs.stat(file)).mode).to.equal(0o644)
+
+    // files with prior execute bit should now be user and group executable
+    expect((await mfs.stat(bin)).mode).to.equal(0o754)
+  })
 })
