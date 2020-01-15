@@ -114,7 +114,8 @@ const addToDirectory = async (context, options) => {
 
   return {
     node: options.parent,
-    cid
+    cid,
+    size: options.parent.size
   }
 }
 
