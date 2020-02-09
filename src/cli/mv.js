@@ -52,9 +52,9 @@ module.exports = {
 
   handler (argv) {
     const {
+      ctx: { ipfs },
       source,
       dest,
-      ipfs,
       parents,
       recursive,
       cidVersion,
@@ -63,7 +63,7 @@ module.exports = {
       shardSplitThreshold
     } = argv
 
-    return ipfs.api.files.mv(source, dest, {
+    return ipfs.files.mv(source, dest, {
       parents,
       recursive,
       cidVersion,

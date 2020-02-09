@@ -21,12 +21,12 @@ module.exports = {
 
   handler (argv) {
     const {
+      ctx: { ipfs },
       path,
-      ipfs,
       recursive
     } = argv
 
-    return ipfs.api.files.rm(path, {
+    return ipfs.files.rm(path, {
       recursive
     })
   }

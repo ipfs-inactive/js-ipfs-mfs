@@ -52,9 +52,8 @@ Mtime: <mtime>`,
 
   handler (argv) {
     const {
+      ctx: { ipfs, print },
       path,
-      ipfs,
-      print,
       format,
       hash,
       size,
@@ -62,7 +61,7 @@ Mtime: <mtime>`,
       cidBase
     } = argv
 
-    return ipfs.api.files.stat(path, {
+    return ipfs.files.stat(path, {
       withLocal
     })
       .then((stats) => {

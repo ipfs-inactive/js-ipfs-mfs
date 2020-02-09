@@ -39,16 +39,16 @@ module.exports = {
 
   handler (argv) {
     const {
+      ctx: { ipfs },
       source,
       dest,
-      ipfs,
       parents,
       flush,
       hashAlg,
       shardSplitThreshold
     } = argv
 
-    return ipfs.api.files.cp(source, dest, {
+    return ipfs.files.cp(source, dest, {
       parents,
       flush,
       hashAlg,

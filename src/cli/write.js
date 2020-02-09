@@ -98,8 +98,8 @@ module.exports = {
 
   async handler (argv) {
     const {
+      ctx: { ipfs, getStdin },
       path,
-      ipfs,
       offset,
       length,
       create,
@@ -117,7 +117,7 @@ module.exports = {
       mtime
     } = argv
 
-    await ipfs.api.files.write(path, process.stdin, {
+    await ipfs.files.write(path, getStdin(), {
       offset,
       length,
       create,

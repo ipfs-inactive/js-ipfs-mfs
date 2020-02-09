@@ -17,13 +17,12 @@ module.exports = {
 
   async handler (argv) {
     const {
+      ctx: { ipfs, print },
       path,
-      ipfs,
-      cidBase,
-      print
+      cidBase
     } = argv
 
-    let cid = await ipfs.api.files.flush(path || FILE_SEPARATOR, {})
+    let cid = await ipfs.files.flush(path || FILE_SEPARATOR, {})
 
     if (cidBase && cidBase !== 'base58btc' && cid.version === 0) {
       cid = cid.toV1()

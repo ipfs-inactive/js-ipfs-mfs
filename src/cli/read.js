@@ -20,14 +20,13 @@ module.exports = {
 
   async handler (argv) {
     const {
+      ctx: { ipfs, print },
       path,
-      ipfs,
-      print,
       offset,
       length
     } = argv
 
-    for await (const buffer of ipfs.api.files.read(path, {
+    for await (const buffer of ipfs.files.read(path, {
       offset,
       length
     })) {

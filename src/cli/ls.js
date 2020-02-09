@@ -37,12 +37,11 @@ module.exports = {
 
   async handler (argv) {
     const {
+      ctx: { ipfs, print },
       path,
-      ipfs,
       long,
       sort,
-      cidBase,
-      print
+      cidBase
     } = argv
 
     const printListing = file => {
@@ -55,7 +54,7 @@ module.exports = {
 
     // https://github.com/ipfs/go-ipfs/issues/5181
     if (sort) {
-      let files = await all(ipfs.api.files.ls(path || FILE_SEPARATOR))
+      let files = await all(ipfs.files.ls(path || FILE_SEPARATOR))
 
       files = files.sort((a, b) => {
         return a.name.localeCompare(b.name)
@@ -65,7 +64,7 @@ module.exports = {
       return
     }
 
-    for await (const file of ipfs.api.files.ls(path || FILE_SEPARATOR)) {
+    for await (const file of ipfs.files.ls(path || FILE_SEPARATOR)) {
       printListing(file)
     }
   }

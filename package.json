@@ -59,8 +59,7 @@
     "sinon": "^8.0.4",
     "stream-to-promise": "^2.2.0",
     "temp-write": "^4.0.0",
-    "yargs": "^15.0.2",
-    "yargs-promise": "^1.1.0"
+    "yargs": "^15.1.0"
   },
   "dependencies": {
     "@hapi/boom": "^7.4.2",
@@ -78,8 +77,8 @@
     "ipld-dag-pb": "^0.18.0",
     "it-all": "^1.0.1",
     "it-last": "^1.0.1",
-    "it-to-stream": "^0.1.1",
     "it-pipe": "^1.0.1",
+    "it-to-stream": "^0.1.1",
     "joi-browser": "^13.4.0",
     "mortice": "^2.0.0",
     "multicodec": "^1.0.0",

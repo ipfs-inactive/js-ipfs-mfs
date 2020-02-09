@@ -57,8 +57,8 @@ module.exports = {
 
   handler (argv) {
     const {
+      ctx: { ipfs },
       path,
-      ipfs,
       parents,
       cidVersion,
       hashAlg,
@@ -68,7 +68,7 @@ module.exports = {
       mtime
     } = argv
 
-    return ipfs.api.files.mkdir(path, {
+    return ipfs.files.mkdir(path, {
       parents,
       cidVersion,
       hashAlg,
