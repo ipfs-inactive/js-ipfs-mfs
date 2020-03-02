@@ -1,3 +1,9 @@
+# 🔒 Archived <!-- omit in toc -->
+
+The contents of this repo have been merged into [ipfs/js-ipfs](https://github.com/ipfs/js-ipfs).
+
+Please open [issues](https://github.com/ipfs/js-ipfs/issues) or submit [PRs](https://github.com/ipfs/js-ipfs/pulls) there.
+
 # MFS (Mutable File System) JavaScript Implementation <!-- omit in toc -->
 
 [![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
